@@ -51,9 +51,34 @@ public partial class MainWindow : Window
             System.IO.File.WriteAllText(saveFileDialog.FileName, textBox.Text);
         }
     }
+    
+    private void Undo_Click(object sender, RoutedEventArgs e) => textBox.Undo();
+    private void Redo_Click(object sender, RoutedEventArgs e) => textBox.Redo();
+    private void Cut_Click(object sender, RoutedEventArgs e) => textBox.Cut();
+    private void Copy_Click(object sender, RoutedEventArgs e) => textBox.Copy();
+    private void Paste_Click(object sender, RoutedEventArgs e) => textBox.Paste();
+    private void SelectAll_Click(object sender, RoutedEventArgs e) => textBox.SelectAll();
 
     public MainWindow()
     {
         InitializeComponent();
+        ApplyWindowsTheme();
+    }
+    
+    private void ApplyWindowsTheme()
+    {
+        var key = Registry.GetValue(
+            @"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
+            "AppsUseLightTheme", 1);
+
+        bool isDark = key is int value && value == 0;
+
+        if (isDark)
+        {
+            Background = new SolidColorBrush(Color.FromRgb(30, 30, 30));
+            textBox.Background = new SolidColorBrush(Color.FromRgb(30, 30, 30));
+            textBox.Foreground = new SolidColorBrush(Color.FromRgb(212, 212, 212));
+            textBox.CaretBrush = new SolidColorBrush(Colors.White);
+        }
     }
 }
