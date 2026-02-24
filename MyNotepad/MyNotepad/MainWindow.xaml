@@ -1,40 +1,65 @@
 ﻿<Window x:Class="MyNotepad.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:MyNotepad"
-        mc:Ignorable="d"
         Title="MyNotepad" Height="600" Width="1000">
-    <DockPanel LastChildFill="True" Background="#1E1E1E">
-        <Menu DockPanel.Dock="Top"
-              Background="#3C3C3C" 
-              Foreground="#CCCCCC"
-              Padding="4">
+
+    <DockPanel LastChildFill="True" Background="#1E1E1E" >
+        
+        <Menu DockPanel.Dock="Top" Background="#3C3C3C" Padding="5">
             
             <Menu.Resources>
                 <Style TargetType="MenuItem">
-                    <Setter Property="Background" Value="#3C3C3C"/>
-                    <Setter Property="Foreground" Value="#CCCCCC"/>
+                    <Setter Property="Foreground" Value="#D4D4D4"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="MenuItem">
+                                <Border x:Name="Bg" Background="{TemplateBinding Background}" Padding="10,4" CornerRadius="6" Margin="3">
+                                    <Grid>
+                                        <ContentPresenter ContentSource="Header" />
+                        
+                                        <Popup x:Name="Pop" IsOpen="{TemplateBinding IsSubmenuOpen}" Placement="Bottom" AllowsTransparency="True">
+                                            <Border Background="#2D2D2D" BorderBrush="#454545" BorderThickness="1" Padding="2" CornerRadius="10" Margin="0,4,0,0">
+                                                <StackPanel IsItemsHost="True" />
+                                            </Border>
+                                        </Popup>
+                                    </Grid>
+                                </Border>
+                
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsHighlighted" Value="True">
+                                        <Setter TargetName="Bg" Property="Background" Value="DimGray"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </Trigger>
+                    
+                                    <Trigger Property="IsSubmenuOpen" Value="True">
+                                        <Setter TargetName="Bg" Property="Background" Value="DimGray"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </Trigger>
+                    
+                                    <Trigger Property="Role" Value="SubmenuItem">
+                                        <Setter TargetName="Pop" Property="Visibility" Value="Collapsed"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
                 </Style>
             </Menu.Resources>
             
-            <MenuItem Header="File"> 
-                <MenuItem Header="New" Click="New_Click"/>
-                <MenuItem Header="Open" Click="Open_Click"/>
-                <MenuItem Header="Save" Click="Save_Click"/>
-                <MenuItem Header="Exit" Click="Exit_Click"/>
+            <MenuItem Header="File" Background="Transparent" FontSize="13" >
+                <MenuItem Header="New" Click="New_Click" Background="Transparent" />
+                <MenuItem Header="Open" Click="Open_Click" Background="Transparent"/>
+                <MenuItem Header="Save" Click="Save_Click" Background="Transparent"/>
+                <MenuItem Header="Exit" Click="Exit_Click" Background="Transparent"/>
             </MenuItem>
             
-            <MenuItem Header="Edit">
-                <MenuItem Header="Undo" Click="Undo_Click"/>
-                <MenuItem Header="Redo" Click="Redo_Click"/>
-                <Separator/>
-                <MenuItem Header="Cut" Click="Cut_Click"/>
-                <MenuItem Header="Copy" Click="Copy_Click"/>
-                <MenuItem Header="Paste" Click="Paste_Click"/>
-                <Separator/>
-                <MenuItem Header="Select All" Click="SelectAll_Click"/>
+            <MenuItem Header="Edit" Background="Transparent" FontSize="13">
+                <MenuItem Header="Undo" Click="Undo_Click" Background="Transparent" />
+                <MenuItem Header="Redo" Click="Redo_Click" Background="Transparent"/>
+                <MenuItem Header="Cut" Click="Cut_Click" Background="Transparent"/>
+                <MenuItem Header="Copy" Click="Copy_Click" Background="Transparent"/>
+                <MenuItem Header="Paste" Click="Paste_Click" Background="Transparent"/>
+                <MenuItem Header="Select All" Click="SelectAll_Click" Background="Transparent"/>
             </MenuItem>
         </Menu>
         

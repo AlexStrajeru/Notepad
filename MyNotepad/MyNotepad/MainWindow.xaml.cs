@@ -13,11 +13,6 @@ using Microsoft.Win32;
 
 namespace MyNotepad;
 
-
-
-/// <summary>
-/// Interaction logic for MainWindow.xaml
-/// </summary>
 public partial class MainWindow : Window
 {
     private void Exit_Click(object sender, RoutedEventArgs e)
@@ -62,23 +57,5 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        ApplyWindowsTheme();
-    }
-    
-    private void ApplyWindowsTheme()
-    {
-        var key = Registry.GetValue(
-            @"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
-            "AppsUseLightTheme", 1);
-
-        bool isDark = key is int value && value == 0;
-
-        if (isDark)
-        {
-            Background = new SolidColorBrush(Color.FromRgb(30, 30, 30));
-            textBox.Background = new SolidColorBrush(Color.FromRgb(30, 30, 30));
-            textBox.Foreground = new SolidColorBrush(Color.FromRgb(212, 212, 212));
-            textBox.CaretBrush = new SolidColorBrush(Colors.White);
-        }
     }
 }
