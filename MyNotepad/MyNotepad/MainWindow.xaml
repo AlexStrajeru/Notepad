@@ -8,10 +8,10 @@
         Title="MyNotepad" Height="600" Width="1000">
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="File">
-                <MenuItem Header="New"/>
-                <MenuItem Header="Open"/>
-                <MenuItem Header="Save"/>
+            <MenuItem Header="File"> 
+                <MenuItem Header="New" Click="New_Click"/>
+                <MenuItem Header="Open" Click="Open_Click"/>
+                <MenuItem Header="Save" Click="Save_Click"/>
                 <MenuItem Header="Exit" Click="Exit_Click"/>
             </MenuItem>
             
@@ -24,7 +24,8 @@
             </MenuItem>
         </Menu>
         
-        <TextBox AcceptsReturn="True"
+        <TextBox x:Name="textBox"
+                AcceptsReturn="True"
                  AcceptsTab="True"
                  VerticalScrollBarVisibility="Auto"
                  HorizontalScrollBarVisibility="Auto"
