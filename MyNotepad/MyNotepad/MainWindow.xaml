@@ -11,7 +11,6 @@
     <DockPanel LastChildFill="True" Background="#1E1E1E" >
         
         <Menu DockPanel.Dock="Top" Background="#3C3C3C" Padding="5">
-            
             <Menu.Resources>
                 <Style TargetType="MenuItem">
                     <Setter Property="Foreground" Value="#D4D4D4"/>
@@ -21,7 +20,6 @@
                                 <Border x:Name="Bg" Background="{TemplateBinding Background}" Padding="10,4" CornerRadius="6" Margin="3">
                                     <Grid>
                                         <ContentPresenter ContentSource="Header" />
-                        
                                         <Popup x:Name="Pop" IsOpen="{TemplateBinding IsSubmenuOpen}" Placement="Bottom" AllowsTransparency="True">
                                             <Border Background="#2D2D2D" BorderBrush="#454545" BorderThickness="1" Padding="2" CornerRadius="10" Margin="0,4,0,0">
                                                 <StackPanel IsItemsHost="True" />
@@ -29,20 +27,14 @@
                                         </Popup>
                                     </Grid>
                                 </Border>
-                
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsHighlighted" Value="True">
                                         <Setter TargetName="Bg" Property="Background" Value="DimGray"/>
                                         <Setter Property="Foreground" Value="White"/>
                                     </Trigger>
-                    
                                     <Trigger Property="IsSubmenuOpen" Value="True">
                                         <Setter TargetName="Bg" Property="Background" Value="DimGray"/>
                                         <Setter Property="Foreground" Value="White"/>
-                                    </Trigger>
-                    
-                                    <Trigger Property="Role" Value="SubmenuItem">
-                                        <Setter TargetName="Pop" Property="Visibility" Value="Collapsed"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -55,31 +47,137 @@
                 <MenuItem Header="New"  Command="{Binding NewCommand}"  Background="Transparent"/>
                 <MenuItem Header="Open" Command="{Binding OpenCommand}" Background="Transparent"/>
                 <MenuItem Header="Save" Command="{Binding SaveCommand}" Background="Transparent"/>
+                <MenuItem Header="Close all files" Command="{Binding CloseAllCommand}" Background="Transparent"/>
                 <MenuItem Header="Exit" Command="{Binding ExitCommand}" Background="Transparent"/>
             </MenuItem>
 
             <MenuItem Header="Edit" Background="Transparent" FontSize="13">
-                <MenuItem Header="Undo"       Command="ApplicationCommands.Undo"      Background="Transparent"/>
-                <MenuItem Header="Redo"       Command="ApplicationCommands.Redo"      Background="Transparent"/>
-                <MenuItem Header="Cut"        Command="ApplicationCommands.Cut"       Background="Transparent"/>
-                <MenuItem Header="Copy"       Command="ApplicationCommands.Copy"      Background="Transparent"/>
-                <MenuItem Header="Paste"      Command="ApplicationCommands.Paste"     Background="Transparent"/>
-                <MenuItem Header="Select All" Command="ApplicationCommands.SelectAll" Background="Transparent"/>
+                <MenuItem Header="Undo" Command="ApplicationCommands.Undo" Background="Transparent"/>
+                <MenuItem Header="Redo" Command="ApplicationCommands.Redo" Background="Transparent"/>
+                <MenuItem Header="Cut" Command="ApplicationCommands.Cut" Background="Transparent"/>
+                <MenuItem Header="Copy" Command="ApplicationCommands.Copy" Background="Transparent"/>
+                <MenuItem Header="Paste" Command="ApplicationCommands.Paste" Background="Transparent"/>
             </MenuItem>
         </Menu>
         
-        <TextBox x:Name="textBox"
-                 Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
-                 AcceptsReturn="True"
-                 AcceptsTab="True"
-                 VerticalScrollBarVisibility="Auto"
-                 HorizontalScrollBarVisibility="Auto"
-                 FontFamily="Consolas"
-                 FontSize="14"
-                 Background="#1E1E1E"
-                 Foreground="#D4D4D4"
-                 CaretBrush="White"
-                 BorderThickness="0"
-                 Padding="10"/>
+        <TabControl ItemsSource="{Binding Documents}" 
+                    SelectedItem="{Binding SelectedDocument}"
+                    Background="#1E1E1E" 
+                    BorderThickness="0"
+                    Padding="0">
+            <TabControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </TabControl.ItemsPanel>
+            
+            <TabControl.Template>
+                <ControlTemplate TargetType="TabControl">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden" Focusable="False">
+                            <ItemsPresenter />
+                        </ScrollViewer>
+                        <Border Grid.Row="1" Background="{TemplateBinding Background}">
+                            <ContentPresenter ContentSource="SelectedContent" />
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </TabControl.Template>
+            
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="Background" Value="#3C3C3C"/>
+                    <Setter Property="Foreground" Value="#D4D4D4"/>
+                    <Setter Property="Padding" Value="12,6"/>
+                    <Setter Property="Margin" Value="2,0,2,0"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border x:Name="Border" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="0,0,8,8">
+                                    <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="CornflowerBlue"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="#3E3E42"/>
+                                    </Trigger>
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="IsSelected" Value="True"/>
+                                            <Condition Property="IsMouseOver" Value="True"/>
+                                        </MultiTrigger.Conditions>
+                                        <Setter TargetName="Border" Property="Background" Value="CornflowerBlue"/>
+                                    </MultiTrigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
+
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding DisplayTitle}" 
+                                   VerticalAlignment="Center" 
+                                   FontSize="13" 
+                                   Margin="0,0,8,0"/>
+                        <Button Content="×" 
+                                Command="{Binding DataContext.CloseCommand, RelativeSource={RelativeSource AncestorType=TabControl}}"
+                                CommandParameter="{Binding}"
+                                VerticalAlignment="Center"
+                                Cursor="Hand"
+                                Width="20" 
+                                Height="20">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Foreground" Value="#D4D4D4"/>
+                                    <Setter Property="FontSize" Value="16"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="btnBorder" Background="Transparent" CornerRadius="4">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-2,0,0"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="btnBorder" Property="Background" Value="Red"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
+                             AcceptsReturn="True"
+                             AcceptsTab="True"
+                             VerticalScrollBarVisibility="Auto"
+                             HorizontalScrollBarVisibility="Auto"
+                             FontFamily="Consolas"
+                             FontSize="14"
+                             Background="#1E1E1E"
+                             Foreground="#D4D4D4"
+                             CaretBrush="White"
+                             BorderThickness="0"
+                             Padding="10"/>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
     </DockPanel>
 </Window>
