@@ -6,6 +6,7 @@
         xmlns:edit="clr-namespace:MyNotepad.Features.Edit"
         xmlns:status="clr-namespace:MyNotepad.Features.StatusBar"
         xmlns:help="clr-namespace:MyNotepad.Features.Help"
+        xmlns:avalon="http://icsharpcode.net/sharpdevelop/avalonedit"
         Title="MyNotepad" Height="600" Width="1000">
 
     <Window.DataContext>
@@ -20,9 +21,24 @@
             <help:HelpMenuControl/>
         </Menu>
 
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="#2D2D2D">
+            <Button Content="📄 New"   Command="{Binding NewCommand}"      Style="{StaticResource ToolbarButtonStyle}" ToolTip="New file"/>
+            <Button Content="📂 Open"  Command="{Binding OpenCommand}"     Style="{StaticResource ToolbarButtonStyle}" ToolTip="Open file"/>
+            <Button Content="💾 Save"  Command="{Binding SaveCommand}"     Style="{StaticResource ToolbarButtonStyle}" ToolTip="Save file"/>
+            <Separator Width="1" Background="#454545" Margin="4,2"/>
+            <Button Content="↩ Undo"  Click="UndoButton_Click"  Style="{StaticResource ToolbarButtonStyle}" ToolTip="Undo"/>
+            <Button Content="↪ Redo"  Click="RedoButton_Click"  Style="{StaticResource ToolbarButtonStyle}" ToolTip="Redo"/>
+            <Separator Width="1" Background="#454545" Margin="4,2"/>
+            <Button Content="✂ Cut"   Click="CutButton_Click"   Style="{StaticResource ToolbarButtonStyle}" ToolTip="Cut"/>
+            <Button Content="📋 Copy" Click="CopyButton_Click"  Style="{StaticResource ToolbarButtonStyle}" ToolTip="Copy"/>
+            <Button Content="📌 Paste" Click="PasteButton_Click" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Paste"/>
+            <Separator Width="1" Background="#454545" Margin="4,2"/>
+            <Button Content="✖ Close all" Command="{Binding CloseAllCommand}" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Close all files"/>
+        </StackPanel>
+
         <status:StatusBarControl DockPanel.Dock="Bottom" DataContext="{Binding StatusBar}"/>
 
-        <TabControl ItemsSource="{Binding OpenTabs}" SelectedItem="{Binding ActiveTab}">
+        <TabControl x:Name="MainTabControl" ItemsSource="{Binding OpenTabs}" SelectedItem="{Binding ActiveTab}">
             <TabControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal"/>
@@ -43,18 +59,17 @@
 
             <TabControl.ContentTemplate>
                 <DataTemplate>
-                    <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
-                             AcceptsReturn="True"
-                             AcceptsTab="True"
+                    <avalon:TextEditor x:Name="Editor"
+                             ShowLineNumbers="True"
                              VerticalScrollBarVisibility="Auto"
                              HorizontalScrollBarVisibility="Auto"
                              FontFamily="Consolas"
                              FontSize="14"
                              Background="#1E1E1E"
                              Foreground="#D4D4D4"
-                             CaretBrush="White"
                              BorderThickness="0"
-                             Padding="10"/>
+                             Padding="5"
+                             Loaded="Editor_Loaded"/>
                 </DataTemplate>
             </TabControl.ContentTemplate>
         </TabControl>

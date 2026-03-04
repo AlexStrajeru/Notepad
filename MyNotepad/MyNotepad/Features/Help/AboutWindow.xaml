@@ -5,7 +5,7 @@
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="#1E1E1E">
-    <StackPanel Margin="30" VerticalAlignment="Center">
+    <StackPanel Margin="30" VerticalAlignment="Center" >
         <TextBlock Text="MyNotepad" FontSize="20" FontWeight="Bold" Foreground="White" Margin="0,0,0,16"/>
         <TextBlock Text="Nume: Strajeru Alexandru" FontSize="14" Foreground="#D4D4D4" Margin="0,4"/>
         <TextBlock Text="Grupa: 10LF244" FontSize="14" Foreground="#D4D4D4" Margin="0,4"/>
