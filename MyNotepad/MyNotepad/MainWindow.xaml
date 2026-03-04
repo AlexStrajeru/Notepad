@@ -5,6 +5,7 @@
         xmlns:file="clr-namespace:MyNotepad.Features.File"
         xmlns:edit="clr-namespace:MyNotepad.Features.Edit"
         xmlns:status="clr-namespace:MyNotepad.Features.StatusBar"
+        xmlns:help="clr-namespace:MyNotepad.Features.Help"
         Title="MyNotepad" Height="600" Width="1000">
 
     <Window.DataContext>
@@ -16,6 +17,7 @@
         <Menu DockPanel.Dock="Top" Background="#3C3C3C" Padding="5">
             <file:FileMenuControl/>
             <edit:EditMenuControl/>
+            <help:HelpMenuControl/>
         </Menu>
 
         <status:StatusBarControl DockPanel.Dock="Bottom" DataContext="{Binding StatusBar}"/>

@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Input;
 using MyNotepad.Features.File;
 using MyNotepad.Features.StatusBar;
+using MyNotepad.Features.Help;
 
 namespace MyNotepad.Core;
 
@@ -28,6 +29,7 @@ public class AppViewModel : ObservableObject
     public ICommand CloseCommand { get; }
     public ICommand CloseAllCommand { get; }
     public ICommand ExitCommand { get; }
+    public ICommand AboutCommand { get; }
 
     public AppViewModel()
     {
@@ -40,6 +42,7 @@ public class AppViewModel : ObservableObject
         CloseCommand    = new RelayCommand<DocumentTab>(CloseDocument);
         CloseAllCommand = new RelayCommand(CloseAllDocuments, CanCloseAll);
         ExitCommand     = new RelayCommand(ExitApplication);
+        AboutCommand    = new RelayCommand(OpenAbout);
 
         FileOperations.NewDocument();
     }
@@ -83,5 +86,12 @@ public class AppViewModel : ObservableObject
     private void ExitApplication()
     {
         Application.Current.Shutdown();
+    }
+
+    private void OpenAbout()
+    {
+        var aboutWindow = new AboutWindow();
+        aboutWindow.Owner = Application.Current.MainWindow;
+        aboutWindow.ShowDialog();
     }
 }
