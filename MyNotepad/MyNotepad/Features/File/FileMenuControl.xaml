@@ -1,0 +1,11 @@
+<MenuItem x:Class="MyNotepad.Features.File.FileMenuControl"
+          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+          Header="File"
+          Style="{StaticResource TopLevelMenuItemStyle}">
+    <MenuItem Header="New"             Command="{Binding NewCommand}"      Style="{StaticResource SubMenuItemStyle}"/>
+    <MenuItem Header="Open"            Command="{Binding OpenCommand}"     Style="{StaticResource SubMenuItemStyle}"/>
+    <MenuItem Header="Save"            Command="{Binding SaveCommand}"     Style="{StaticResource SubMenuItemStyle}"/>
+    <MenuItem Header="Close all files" Command="{Binding CloseAllCommand}" Style="{StaticResource SubMenuItemStyle}"/>
+    <MenuItem Header="Exit"            Command="{Binding ExitCommand}"     Style="{StaticResource SubMenuItemStyle}"/>
+</MenuItem>

@@ -1,0 +1,18 @@
+# Build results
+bin/
+obj/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+
+# NuGet generated files
+*.nuget.props
+*.nuget.targets
+project.nuget.cache
+project.assets.json
+project.packagespec.json
+rider.project.model.nuget.info
+rider.project.restore.info
