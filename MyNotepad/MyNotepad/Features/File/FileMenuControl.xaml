@@ -6,6 +6,7 @@
     <MenuItem Header="New"             Command="{Binding NewCommand}"      Style="{StaticResource SubMenuItemStyle}"/>
     <MenuItem Header="Open"            Command="{Binding OpenCommand}"     Style="{StaticResource SubMenuItemStyle}"/>
     <MenuItem Header="Save"            Command="{Binding SaveCommand}"     Style="{StaticResource SubMenuItemStyle}"/>
+    <MenuItem Header="Save As..."      Command="{Binding SaveAsCommand}"   Style="{StaticResource SubMenuItemStyle}"/>
     <MenuItem Header="Close all files" Command="{Binding CloseAllCommand}" Style="{StaticResource SubMenuItemStyle}"/>
     <MenuItem Header="Exit"            Command="{Binding ExitCommand}"     Style="{StaticResource SubMenuItemStyle}"/>
 </MenuItem>

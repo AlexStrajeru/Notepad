@@ -2,6 +2,7 @@ using MyNotepad.Core;
 
 namespace MyNotepad.Features.StatusBar;
 
+// Datele afisate in bara de jos a ferestrei (nume fisier, cale, linii, status salvare)
 public class StatusBarViewModel : ObservableObject
 {
     private readonly AppViewModel _app;
@@ -9,25 +10,28 @@ public class StatusBarViewModel : ObservableObject
     public StatusBarViewModel(AppViewModel app)
     {
         _app = app;
+        // Asculta schimbarea tab-ului activ
         _app.PropertyChanged += OnAppPropertyChanged;
     }
 
+    // Cand se schimba tab-ul activ, actualizeaza toate proprietatile barei
     private void OnAppPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(AppViewModel.ActiveTab))
         {
             if (_app.ActiveTab != null)
                 _app.ActiveTab.PropertyChanged += OnActiveTabPropertyChanged;
-
-            OnPropertyChanged(string.Empty);
+            OnPropertyChanged(string.Empty); // string.Empty = actualizeaza tot
         }
     }
 
+    // Cand se schimba ceva in tab-ul activ (text, saved etc.), actualizeaza bara
     private void OnActiveTabPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         OnPropertyChanged(string.Empty);
     }
 
+    // Numele fisierului afisat in bara
     public string FileName
     {
         get
@@ -37,6 +41,7 @@ public class StatusBarViewModel : ObservableObject
         }
     }
 
+    // Calea fisierului sau "Not saved" daca nu a fost salvat
     public string FilePath
     {
         get
@@ -47,6 +52,7 @@ public class StatusBarViewModel : ObservableObject
         }
     }
 
+    // Numarul de linii din fisierul curent
     public string LineCount
     {
         get
@@ -57,6 +63,7 @@ public class StatusBarViewModel : ObservableObject
         }
     }
 
+    // "Saved" sau "Unsaved" in functie de starea fisierului
     public string DirtyStatus
     {
         get

@@ -1,9 +1,10 @@
-﻿<Window x:Class="MyNotepad.MainWindow"
+﻿<core:AnimatedWindow x:Class="MyNotepad.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:core="clr-namespace:MyNotepad.Core"
         xmlns:file="clr-namespace:MyNotepad.Features.File"
         xmlns:edit="clr-namespace:MyNotepad.Features.Edit"
+        xmlns:search="clr-namespace:MyNotepad.Features.Search"
         xmlns:status="clr-namespace:MyNotepad.Features.StatusBar"
         xmlns:help="clr-namespace:MyNotepad.Features.Help"
         xmlns:avalon="http://icsharpcode.net/sharpdevelop/avalonedit"
@@ -19,6 +20,7 @@
         <Menu DockPanel.Dock="Top" Background="#3C3C3C" Padding="5">
             <file:FileMenuControl/>
             <edit:EditMenuControl/>
+            <search:SearchMenuControl/>
             <help:HelpMenuControl/>
         </Menu>
 
@@ -40,6 +42,15 @@
                     <Rectangle.Fill><SolidColorBrush Color="White"/></Rectangle.Fill>
                     <Rectangle.OpacityMask><ImageBrush ImageSource="icons for notepad/floppy-disk.png"/></Rectangle.OpacityMask>
                 </Rectangle>
+            </Button>
+            <Button Command="{Binding SaveAsCommand}" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Save As...">
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Width="18" Height="18">
+                        <Rectangle.Fill><SolidColorBrush Color="White"/></Rectangle.Fill>
+                        <Rectangle.OpacityMask><ImageBrush ImageSource="icons for notepad/floppy-disk.png"/></Rectangle.OpacityMask>
+                    </Rectangle>
+                    <TextBlock Text="+" Foreground="White" FontSize="12" FontWeight="Bold" VerticalAlignment="Bottom" Margin="1,0,0,0"/>
+                </StackPanel>
             </Button>
             <Separator Width="1" Background="#454545" Margin="4,2"/>
             <Button Click="UndoButton_Click" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Undo">
@@ -121,5 +132,5 @@
         </TabControl>
 
     </DockPanel>
-</Window>
+</core:AnimatedWindow>
 

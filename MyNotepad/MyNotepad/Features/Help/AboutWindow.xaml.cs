@@ -1,41 +1,34 @@
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Navigation;
+using MyNotepad.Core;
 
 namespace MyNotepad.Features.Help;
 
-public partial class AboutWindow : Window
+// Mosteneste AnimatedWindow — primeste automat fade-in si dark title bar
+public partial class AboutWindow : AnimatedWindow
 {
-    [DllImport("dwmapi.dll")]
-    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
-
     public AboutWindow()
     {
         InitializeComponent();
     }
 
-    protected override void OnSourceInitialized(EventArgs e)
-    {
-        base.OnSourceInitialized(e);
-        var hwnd = new WindowInteropHelper(this).Handle;
-        int dark = 1;
-        DwmSetWindowAttribute(hwnd, 20, ref dark, sizeof(int)); // Windows 11
-        DwmSetWindowAttribute(hwnd, 19, ref dark, sizeof(int)); // Windows 10
-    }
-
-    // ...existing code...
-
     private void OK_Click(object sender, RoutedEventArgs e)
     {
-        Close();
+        // Fade-out inainte de inchidere
+        var ease = new CubicEase { EasingMode = EasingMode.EaseIn };
+        var fadeOut = new DoubleAnimation(1, 0, new Duration(TimeSpan.FromSeconds(0.15)))
+            { EasingFunction = ease };
+        fadeOut.Completed += (_, _) => Close();
+        this.BeginAnimation(OpacityProperty, fadeOut);
     }
 
     private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
     {
-        Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+        System.Diagnostics.Process.Start(
+            new System.Diagnostics.ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
         e.Handled = true;
     }
 }
-

@@ -9,8 +9,10 @@ namespace MyNotepad.Core;
 
 public class AppViewModel : ObservableObject
 {
+    // Lista de tab-uri deschise — UI-ul o afiseaza automat
     public ObservableCollection<DocumentTab> OpenTabs { get; } = new ObservableCollection<DocumentTab>();
 
+    // Tab-ul selectat in momentul de fata
     private DocumentTab? _activeTab;
     public DocumentTab? ActiveTab
     {
@@ -20,42 +22,51 @@ public class AppViewModel : ObservableObject
 
     public int DocumentCounter { get; set; } = 1;
 
+    // Clasa care se ocupa cu operatiile pe fisiere (new, open, save, close)
     public FileOperations FileOperations { get; }
+
+    // Datele afisate in bara de jos (linie, coloana, status)
     public StatusBarViewModel StatusBar { get; }
 
+    // Comenzile legate de butoane si meniuri
     public ICommand NewCommand { get; }
     public ICommand OpenCommand { get; }
     public ICommand SaveCommand { get; }
+    public ICommand SaveAsCommand { get; }
     public ICommand CloseCommand { get; }
     public ICommand CloseAllCommand { get; }
     public ICommand ExitCommand { get; }
     public ICommand AboutCommand { get; }
+    public ICommand OpenFindCommand { get; }
+    public ICommand OpenReplaceCommand { get; }
 
     public AppViewModel()
     {
         FileOperations = new FileOperations(this);
         StatusBar = new StatusBarViewModel(this);
 
+        // Leaga fiecare comanda de metoda corespunzatoare
         NewCommand      = new RelayCommand(NewDocument);
         OpenCommand     = new RelayCommand(OpenDocument);
-        SaveCommand     = new RelayCommand(SaveDocument, CanSave);
-        CloseCommand    = new RelayCommand<DocumentTab>(CloseDocument);
+        SaveCommand     = new RelayCommand(SaveDocument, CanSave);       // CanSave = activ doar daca e un tab deschis
+        SaveAsCommand   = new RelayCommand(SaveDocumentAs, CanSave);
+        CloseCommand    = new RelayCommand<DocumentTab>(CloseDocument);  // primeste ca parametru tab-ul de inchis
         CloseAllCommand = new RelayCommand(CloseAllDocuments, CanCloseAll);
         ExitCommand     = new RelayCommand(ExitApplication);
         AboutCommand    = new RelayCommand(OpenAbout);
+        OpenFindCommand    = new RelayCommand(OpenFind);
+        OpenReplaceCommand = new RelayCommand(OpenReplace);
 
+        // Deschide un tab gol la pornirea aplicatiei
         FileOperations.NewDocument();
     }
 
-    private void NewDocument()
-    {
-        FileOperations.NewDocument();
-    }
-
-    private void OpenDocument()
-    {
-        FileOperations.OpenDocument();
-    }
+    private void NewDocument()      => FileOperations.NewDocument();
+    private void OpenDocument()     => FileOperations.OpenDocument();
+    private void CloseAllDocuments()=> FileOperations.CloseAllDocuments();
+    private void ExitApplication()  => Application.Current.Shutdown();
+    private bool CanCloseAll()      => OpenTabs.Count > 0;
+    private bool CanSave()          => ActiveTab != null; // dezactiveaza Save daca nu e niciun tab
 
     private void SaveDocument()
     {
@@ -63,35 +74,39 @@ public class AppViewModel : ObservableObject
             FileOperations.SaveDocument(ActiveTab);
     }
 
-    private bool CanSave()
+    private void SaveDocumentAs()
     {
-        return ActiveTab != null;
+        if (ActiveTab != null)
+            FileOperations.SaveDocumentAs(ActiveTab);
     }
 
-    private void CloseDocument(DocumentTab tab)
-    {
-        FileOperations.CloseDocument(tab);
-    }
+    private void CloseDocument(DocumentTab tab) => FileOperations.CloseDocument(tab);
 
-    private void CloseAllDocuments()
-    {
-        FileOperations.CloseAllDocuments();
-    }
-
-    private bool CanCloseAll()
-    {
-        return OpenTabs.Count > 0;
-    }
-
-    private void ExitApplication()
-    {
-        Application.Current.Shutdown();
-    }
-
+    // Deschide fereastra About (informatii despre aplicatie)
     private void OpenAbout()
     {
         var aboutWindow = new AboutWindow();
         aboutWindow.Owner = Application.Current.MainWindow;
         aboutWindow.ShowDialog();
+    }
+
+    // Deschide fereastra de cautare text
+    private void OpenFind()
+    {
+        var main = Application.Current.MainWindow as MainWindow;
+        if (main == null) return;
+        var win = new MyNotepad.Features.Search.FindWindow(() => main.GetActiveEditor());
+        win.Owner = main;
+        win.Show();
+    }
+
+    // Deschide fereastra de inlocuire text
+    private void OpenReplace()
+    {
+        var main = Application.Current.MainWindow as MainWindow;
+        if (main == null) return;
+        var win = new MyNotepad.Features.Search.ReplaceWindow(() => main.GetActiveEditor());
+        win.Owner = main;
+        win.Show();
     }
 }

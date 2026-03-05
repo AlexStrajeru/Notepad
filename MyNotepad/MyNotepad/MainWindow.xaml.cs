@@ -1,68 +1,61 @@
-﻿using System.Runtime.InteropServices;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Interop;
 using System.Windows.Media;
 using ICSharpCode.AvalonEdit;
+using MyNotepad.Core;
 using MyNotepad.Features.File;
 
 namespace MyNotepad;
 
-public partial class MainWindow : Window
+// Mosteneste AnimatedWindow — fade-in si dark title bar automat
+public partial class MainWindow : AnimatedWindow
 {
-    [DllImport("dwmapi.dll")]
-    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
-
     public MainWindow()
     {
         InitializeComponent();
     }
 
-    protected override void OnSourceInitialized(EventArgs e)
-    {
-        base.OnSourceInitialized(e);
-        var hwnd = new WindowInteropHelper(this).Handle;
-        int dark = 1;
-        DwmSetWindowAttribute(hwnd, 20, ref dark, sizeof(int)); // Windows 11
-        DwmSetWindowAttribute(hwnd, 19, ref dark, sizeof(int)); // Windows 10
-    }
-
     private void Editor_Loaded(object sender, RoutedEventArgs e)
     {
         var editor = (TextEditor)sender;
-        var doc = (DocumentTab)editor.DataContext;
+
+        // Leaga editorul la DocumentTab-ul corect
+        // Se apeleaza si cand se schimba tab-ul activ (DataContext se schimba)
+        BindEditorToDoc(editor);
+        editor.DataContextChanged += (_, _) => BindEditorToDoc(editor);
+    }
+
+    private void BindEditorToDoc(TextEditor editor)
+    {
+        if (editor.DataContext is not DocumentTab doc) return;
 
         editor.LineNumbersForeground = new SolidColorBrush(Color.FromRgb(100, 100, 100));
 
-        editor.Text = doc.Text;
+        // Incarca textul din DocumentTab in editor
+        if (editor.Text != doc.Text)
+            editor.Text = doc.Text;
 
-        editor.TextChanged += (s, args) =>
-        {
-            doc.Text = editor.Text;
-        };
-
-        doc.PropertyChanged += (s, args) =>
-        {
-            if (args.PropertyName == nameof(DocumentTab.Text) && editor.Text != doc.Text)
-                editor.Text = doc.Text;
-        };
+        // Dezaboneaza orice handler vechi pentru a evita leak-uri
+        editor.TextChanged -= OnEditorTextChanged;
+        editor.TextChanged += OnEditorTextChanged;
     }
 
-    private TextEditor? GetActiveEditor()
+    private void OnEditorTextChanged(object? sender, EventArgs e)
     {
-        return FindVisualChild<TextEditor>(MainTabControl);
+        if (sender is TextEditor editor && editor.DataContext is DocumentTab doc)
+            doc.Text = editor.Text;
     }
+
+    public TextEditor? GetActiveEditor() => FindVisualChild<TextEditor>(MainTabControl);
 
     private static T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
     {
         for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
         {
             var child = VisualTreeHelper.GetChild(parent, i);
-            if (child is T result)
-                return result;
+            if (child is T result) return result;
             var found = FindVisualChild<T>(child);
-            if (found != null)
-                return found;
+            if (found != null) return found;
         }
         return null;
     }
