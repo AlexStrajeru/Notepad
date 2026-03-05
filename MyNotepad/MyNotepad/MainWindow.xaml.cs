@@ -1,7 +1,9 @@
-﻿using System.Windows;
+﻿using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Editing;
 using MyNotepad.Core;
 using MyNotepad.Features.File;
 
@@ -18,6 +20,16 @@ public partial class MainWindow : AnimatedWindow
     private void Editor_Loaded(object sender, RoutedEventArgs e)
     {
         var editor = (TextEditor)sender;
+
+        // Centrare numere linii
+        var lineNumberMargin = editor.TextArea.LeftMargins
+            .OfType<LineNumberMargin>()
+            .FirstOrDefault();
+
+        if (lineNumberMargin != null)
+        {
+            lineNumberMargin.Margin = new Thickness(6, 0, 6, 0);
+        }
 
         // Leaga editorul la DocumentTab-ul corect
         // Se apeleaza si cand se schimba tab-ul activ (DataContext se schimba)
