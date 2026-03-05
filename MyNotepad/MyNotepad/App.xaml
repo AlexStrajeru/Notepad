@@ -29,7 +29,14 @@
                             <Grid>
                                 <ContentPresenter ContentSource="Header"/>
                                 <Popup x:Name="Pop" IsOpen="{TemplateBinding IsSubmenuOpen}" Placement="Bottom" AllowsTransparency="True">
-                                    <Border Background="#2D2D2D" BorderBrush="#454545" BorderThickness="1" Padding="2" CornerRadius="10" Margin="0,4,0,0">
+                                    <Border x:Name="PopupBorder" Background="#2D2D2D" BorderBrush="#454545" BorderThickness="1" Padding="2" CornerRadius="10" Margin="0,4,0,0"
+                                            Opacity="0" RenderTransformOrigin="0.5,0">
+                                        <Border.RenderTransform>
+                                            <TransformGroup>
+                                                <ScaleTransform x:Name="PopupScale" ScaleX="0.85" ScaleY="0.85"/>
+                                                <TranslateTransform x:Name="PopupTranslate" Y="-10"/>
+                                            </TransformGroup>
+                                        </Border.RenderTransform>
                                         <StackPanel IsItemsHost="True"/>
                                     </Border>
                                 </Popup>
@@ -43,6 +50,52 @@
                             <Trigger Property="IsSubmenuOpen" Value="True">
                                 <Setter TargetName="Bg" Property="Background" Value="DimGray"/>
                                 <Setter Property="Foreground" Value="White"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <!-- Fade in rapid -->
+                                            <DoubleAnimation Storyboard.TargetName="PopupBorder"
+                                                             Storyboard.TargetProperty="Opacity"
+                                                             From="0" To="1" Duration="0:0:0.12"/>
+                                            <!-- Scale X: squeeze spre normal cu overshoot -->
+                                            <DoubleAnimation Storyboard.TargetName="PopupScale"
+                                                             Storyboard.TargetProperty="ScaleX"
+                                                             From="0.85" To="1" Duration="0:0:0.35">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <ElasticEase Oscillations="1" Springiness="8" EasingMode="EaseOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <!-- Scale Y: squeeze spre normal cu overshoot -->
+                                            <DoubleAnimation Storyboard.TargetName="PopupScale"
+                                                             Storyboard.TargetProperty="ScaleY"
+                                                             From="0.85" To="1" Duration="0:0:0.35">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <ElasticEase Oscillations="1" Springiness="8" EasingMode="EaseOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <!-- Slide up in pozitie cu bounce -->
+                                            <DoubleAnimation Storyboard.TargetName="PopupTranslate"
+                                                             Storyboard.TargetProperty="Y"
+                                                             From="-10" To="0" Duration="0:0:0.3">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <BackEase Amplitude="0.4" EasingMode="EaseOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="PopupBorder"
+                                                             Storyboard.TargetProperty="Opacity"
+                                                             To="0" Duration="0:0:0.08"/>
+                                            <DoubleAnimation Storyboard.TargetName="PopupScale"
+                                                             Storyboard.TargetProperty="ScaleY"
+                                                             To="0.9" Duration="0:0:0.08"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
