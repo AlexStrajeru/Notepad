@@ -5,7 +5,19 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
 
-        <!-- Stil pentru MenuItem-urile de top level (File, Edit) -->
+        <!-- Font global JetBrains Mono -->
+        <FontFamily x:Key="JetBrainsMono">pack://application:,,,/Fonts/#JetBrains Mono</FontFamily>
+
+        <!-- Stil global pentru tot textul -->
+        <Style TargetType="TextElement" x:Key="{x:Type TextElement}">
+            <Setter Property="FontFamily" Value="{StaticResource JetBrainsMono}"/>
+        </Style>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="FontFamily" Value="{StaticResource JetBrainsMono}"/>
+        </Style>
+        <Style TargetType="Control" x:Key="{x:Type Control}">
+            <Setter Property="FontFamily" Value="{StaticResource JetBrainsMono}"/>
+        </Style>
         <Style x:Key="TopLevelMenuItemStyle" TargetType="MenuItem">
             <Setter Property="Foreground" Value="#D4D4D4"/>
             <Setter Property="Background" Value="Transparent"/>

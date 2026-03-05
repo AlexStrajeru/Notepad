@@ -7,7 +7,8 @@
         xmlns:status="clr-namespace:MyNotepad.Features.StatusBar"
         xmlns:help="clr-namespace:MyNotepad.Features.Help"
         xmlns:avalon="http://icsharpcode.net/sharpdevelop/avalonedit"
-        Title="MyNotepad" Height="600" Width="1000">
+        Title="MyNotepad" Height="600" Width="1000"
+        SnapsToDevicePixels="True" UseLayoutRounding="True">
 
     <Window.DataContext>
         <core:AppViewModel/>
@@ -21,19 +22,64 @@
             <help:HelpMenuControl/>
         </Menu>
 
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="#2D2D2D">
-            <Button Content="📄 New"   Command="{Binding NewCommand}"      Style="{StaticResource ToolbarButtonStyle}" ToolTip="New file"/>
-            <Button Content="📂 Open"  Command="{Binding OpenCommand}"     Style="{StaticResource ToolbarButtonStyle}" ToolTip="Open file"/>
-            <Button Content="💾 Save"  Command="{Binding SaveCommand}"     Style="{StaticResource ToolbarButtonStyle}" ToolTip="Save file"/>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="#2D2D2D" RenderOptions.BitmapScalingMode="HighQuality">
+            <Button Command="{Binding NewCommand}" Style="{StaticResource ToolbarButtonStyle}" ToolTip="New file">
+                <Rectangle Width="18" Height="18">
+                    <Rectangle.Fill><SolidColorBrush Color="White"/></Rectangle.Fill>
+                    <Rectangle.OpacityMask><ImageBrush ImageSource="icons for notepad/file-plus.png"/></Rectangle.OpacityMask>
+                </Rectangle>
+            </Button>
+            <Button Command="{Binding OpenCommand}" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Open file">
+                <Rectangle Width="18" Height="18">
+                    <Rectangle.Fill><SolidColorBrush Color="White"/></Rectangle.Fill>
+                    <Rectangle.OpacityMask><ImageBrush ImageSource="icons for notepad/folder-open.png"/></Rectangle.OpacityMask>
+                </Rectangle>
+            </Button>
+            <Button Command="{Binding SaveCommand}" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Save file">
+                <Rectangle Width="18" Height="18">
+                    <Rectangle.Fill><SolidColorBrush Color="White"/></Rectangle.Fill>
+                    <Rectangle.OpacityMask><ImageBrush ImageSource="icons for notepad/floppy-disk.png"/></Rectangle.OpacityMask>
+                </Rectangle>
+            </Button>
             <Separator Width="1" Background="#454545" Margin="4,2"/>
-            <Button Content="↩ Undo"  Click="UndoButton_Click"  Style="{StaticResource ToolbarButtonStyle}" ToolTip="Undo"/>
-            <Button Content="↪ Redo"  Click="RedoButton_Click"  Style="{StaticResource ToolbarButtonStyle}" ToolTip="Redo"/>
+            <Button Click="UndoButton_Click" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Undo">
+                <Rectangle Width="18" Height="18">
+                    <Rectangle.Fill><SolidColorBrush Color="White"/></Rectangle.Fill>
+                    <Rectangle.OpacityMask><ImageBrush ImageSource="icons for notepad/arrow-counter-clockwise.png"/></Rectangle.OpacityMask>
+                </Rectangle>
+            </Button>
+            <Button Click="RedoButton_Click" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Redo">
+                <Rectangle Width="18" Height="18">
+                    <Rectangle.Fill><SolidColorBrush Color="White"/></Rectangle.Fill>
+                    <Rectangle.OpacityMask><ImageBrush ImageSource="icons for notepad/arrow-clockwise.png"/></Rectangle.OpacityMask>
+                </Rectangle>
+            </Button>
             <Separator Width="1" Background="#454545" Margin="4,2"/>
-            <Button Content="✂ Cut"   Click="CutButton_Click"   Style="{StaticResource ToolbarButtonStyle}" ToolTip="Cut"/>
-            <Button Content="📋 Copy" Click="CopyButton_Click"  Style="{StaticResource ToolbarButtonStyle}" ToolTip="Copy"/>
-            <Button Content="📌 Paste" Click="PasteButton_Click" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Paste"/>
+            <Button Click="CutButton_Click" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Cut">
+                <Rectangle Width="18" Height="18">
+                    <Rectangle.Fill><SolidColorBrush Color="White"/></Rectangle.Fill>
+                    <Rectangle.OpacityMask><ImageBrush ImageSource="icons for notepad/scissors.png"/></Rectangle.OpacityMask>
+                </Rectangle>
+            </Button>
+            <Button Click="CopyButton_Click" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Copy">
+                <Rectangle Width="18" Height="18">
+                    <Rectangle.Fill><SolidColorBrush Color="White"/></Rectangle.Fill>
+                    <Rectangle.OpacityMask><ImageBrush ImageSource="icons for notepad/copy.png"/></Rectangle.OpacityMask>
+                </Rectangle>
+            </Button>
+            <Button Click="PasteButton_Click" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Paste">
+                <Rectangle Width="18" Height="18">
+                    <Rectangle.Fill><SolidColorBrush Color="White"/></Rectangle.Fill>
+                    <Rectangle.OpacityMask><ImageBrush ImageSource="icons for notepad/clipboard-text.png"/></Rectangle.OpacityMask>
+                </Rectangle>
+            </Button>
             <Separator Width="1" Background="#454545" Margin="4,2"/>
-            <Button Content="✖ Close all" Command="{Binding CloseAllCommand}" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Close all files"/>
+            <Button Command="{Binding CloseAllCommand}" Style="{StaticResource ToolbarButtonStyle}" ToolTip="Close all files">
+                <Rectangle Width="18" Height="18">
+                    <Rectangle.Fill><SolidColorBrush Color="White"/></Rectangle.Fill>
+                    <Rectangle.OpacityMask><ImageBrush ImageSource="icons for notepad/x-square.png"/></Rectangle.OpacityMask>
+                </Rectangle>
+            </Button>
         </StackPanel>
 
         <status:StatusBarControl DockPanel.Dock="Bottom" DataContext="{Binding StatusBar}"/>
@@ -63,7 +109,7 @@
                              ShowLineNumbers="True"
                              VerticalScrollBarVisibility="Auto"
                              HorizontalScrollBarVisibility="Auto"
-                             FontFamily="Consolas"
+                             FontFamily="{StaticResource JetBrainsMono}"
                              FontSize="14"
                              Background="#1E1E1E"
                              Foreground="#D4D4D4"
