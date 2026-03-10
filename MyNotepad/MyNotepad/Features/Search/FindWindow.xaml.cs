@@ -4,18 +4,21 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using ICSharpCode.AvalonEdit;
 using MyNotepad.Core;
+using MyNotepad.Features.File;
 
 namespace MyNotepad.Features.Search;
 
 // Mosteneste AnimatedWindow — fade-in si dark title bar automat
 public partial class FindWindow : AnimatedWindow
 {
-    private readonly Func<TextEditor?> _getEditor;
+    private readonly AppViewModel _app;
+    private readonly MainWindow _main;
 
-    public FindWindow(Func<TextEditor?> getEditor)
+    public FindWindow(AppViewModel app, MainWindow main)
     {
         InitializeComponent();
-        _getEditor = getEditor;
+        _app = app;
+        _main = main;
         // Slide-down suplimentar la deschidere
         ContentRendered += (_, _) =>
         {
@@ -37,42 +40,149 @@ public partial class FindWindow : AnimatedWindow
 
     private void FindNext_Click(object sender, RoutedEventArgs e)
     {
-        var editor = _getEditor();
-        if (editor == null || string.IsNullOrEmpty(TxtFind.Text)) return;
+        if (string.IsNullOrEmpty(TxtFind.Text)) return;
+        var term = TxtFind.Text;
 
-        var text  = editor.Text;
-        var term  = TxtFind.Text;
-        var start = editor.SelectionStart + editor.SelectionLength;
-        var idx   = text.IndexOf(term, start, Comparison);
-        if (idx < 0) idx = text.IndexOf(term, 0, Comparison);
-
-        if (idx >= 0)
+        if (ChkAllTabs.IsChecked == true)
         {
-            editor.Select(idx, term.Length);
-            editor.ScrollToLine(editor.Document.GetLineByOffset(idx).LineNumber);
+            // Cauta in toate tab-urile, incepand cu cel activ
+            var tabs = _app.OpenTabs.ToList();
+            if (tabs.Count == 0) return;
+
+            int startIndex = _app.ActiveTab != null ? tabs.IndexOf(_app.ActiveTab) : 0;
+            if (startIndex < 0) startIndex = 0;
+
+            // Prima data cauta in tab-ul curent de la pozitia curenta
+            var editor = _main.GetActiveEditor();
+            if (editor != null && _app.ActiveTab != null)
+            {
+                int searchFrom = editor.SelectionStart + editor.SelectionLength;
+                int idx = _app.ActiveTab.Text.IndexOf(term, searchFrom, Comparison);
+                if (idx >= 0)
+                {
+                    editor.Select(idx, term.Length);
+                    editor.ScrollToLine(editor.Document.GetLineByOffset(idx).LineNumber);
+                    return;
+                }
+            }
+
+            // Daca nu a gasit, cauta in celelalte tab-uri
+            for (int i = 1; i < tabs.Count; i++)
+            {
+                var tab = tabs[(startIndex + i) % tabs.Count];
+                int idx = tab.Text.IndexOf(term, 0, Comparison);
+                if (idx >= 0)
+                {
+                    _app.ActiveTab = tab;
+                    // Asteapta ca editorul sa se incarce, apoi selecteaza
+                    Dispatcher.InvokeAsync(() =>
+                    {
+                        var ed = _main.GetActiveEditor();
+                        if (ed != null)
+                        {
+                            ed.Select(idx, term.Length);
+                            ed.ScrollToLine(ed.Document.GetLineByOffset(idx).LineNumber);
+                        }
+                    }, System.Windows.Threading.DispatcherPriority.Loaded);
+                    return;
+                }
+            }
+
+            MessageBox.Show($"'{term}' not found in any tab.", "Find", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         else
-            MessageBox.Show($"'{term}' not found.", "Find", MessageBoxButton.OK, MessageBoxImage.Information);
+        {
+            // Cauta doar in tab-ul curent (comportamentul original)
+            var editor = _main.GetActiveEditor();
+            if (editor == null) return;
+
+            var text = editor.Text;
+            var start = editor.SelectionStart + editor.SelectionLength;
+            var idx = text.IndexOf(term, start, Comparison);
+            if (idx < 0) idx = text.IndexOf(term, 0, Comparison);
+
+            if (idx >= 0)
+            {
+                editor.Select(idx, term.Length);
+                editor.ScrollToLine(editor.Document.GetLineByOffset(idx).LineNumber);
+            }
+            else
+                MessageBox.Show($"'{term}' not found.", "Find", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
 
     private void FindPrev_Click(object sender, RoutedEventArgs e)
     {
-        var editor = _getEditor();
-        if (editor == null || string.IsNullOrEmpty(TxtFind.Text)) return;
+        if (string.IsNullOrEmpty(TxtFind.Text)) return;
+        var term = TxtFind.Text;
 
-        var text  = editor.Text;
-        var term  = TxtFind.Text;
-        var start = editor.SelectionStart - 1;
-        if (start < 0) start = text.Length - 1;
-        var idx = text.LastIndexOf(term, start, Comparison);
-        if (idx < 0) idx = text.LastIndexOf(term, Comparison);
-
-        if (idx >= 0)
+        if (ChkAllTabs.IsChecked == true)
         {
-            editor.Select(idx, term.Length);
-            editor.ScrollToLine(editor.Document.GetLineByOffset(idx).LineNumber);
+            var tabs = _app.OpenTabs.ToList();
+            if (tabs.Count == 0) return;
+
+            int startIndex = _app.ActiveTab != null ? tabs.IndexOf(_app.ActiveTab) : 0;
+            if (startIndex < 0) startIndex = 0;
+
+            // Prima data cauta in tab-ul curent inapoi
+            var editor = _main.GetActiveEditor();
+            if (editor != null && _app.ActiveTab != null)
+            {
+                int searchTo = editor.SelectionStart - 1;
+                if (searchTo >= 0)
+                {
+                    int idx = _app.ActiveTab.Text.LastIndexOf(term, searchTo, Comparison);
+                    if (idx >= 0)
+                    {
+                        editor.Select(idx, term.Length);
+                        editor.ScrollToLine(editor.Document.GetLineByOffset(idx).LineNumber);
+                        return;
+                    }
+                }
+            }
+
+            // Cauta in celelalte tab-uri (in ordine inversa)
+            for (int i = 1; i < tabs.Count; i++)
+            {
+                var tab = tabs[(startIndex - i + tabs.Count) % tabs.Count];
+                if (tab.Text.Length == 0) continue;
+                int idx = tab.Text.LastIndexOf(term, tab.Text.Length - 1, Comparison);
+                if (idx >= 0)
+                {
+                    _app.ActiveTab = tab;
+                    Dispatcher.InvokeAsync(() =>
+                    {
+                        var ed = _main.GetActiveEditor();
+                        if (ed != null)
+                        {
+                            ed.Select(idx, term.Length);
+                            ed.ScrollToLine(ed.Document.GetLineByOffset(idx).LineNumber);
+                        }
+                    }, System.Windows.Threading.DispatcherPriority.Loaded);
+                    return;
+                }
+            }
+
+            MessageBox.Show($"'{term}' not found in any tab.", "Find", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         else
-            MessageBox.Show($"'{term}' not found.", "Find", MessageBoxButton.OK, MessageBoxImage.Information);
+        {
+            var editor = _main.GetActiveEditor();
+            if (editor == null) return;
+
+            var text = editor.Text;
+            var start = editor.SelectionStart - 1;
+            if (start < 0) start = text.Length - 1;
+            var idx = text.LastIndexOf(term, start, Comparison);
+            if (idx < 0) idx = text.LastIndexOf(term, Comparison);
+
+            if (idx >= 0)
+            {
+                editor.Select(idx, term.Length);
+                editor.ScrollToLine(editor.Document.GetLineByOffset(idx).LineNumber);
+            }
+            else
+                MessageBox.Show($"'{term}' not found.", "Find", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
 }

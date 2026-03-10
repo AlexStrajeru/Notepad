@@ -39,6 +39,26 @@ public class AppViewModel : ObservableObject
     public ICommand AboutCommand { get; }
     public ICommand OpenFindCommand { get; }
     public ICommand OpenReplaceCommand { get; }
+    public ICommand OpenReplaceAllCommand { get; }
+    public ICommand ToggleSearchAllTabsCommand { get; }
+
+    private bool _searchAllTabs = false;
+    public bool SearchAllTabs
+    {
+        get { return _searchAllTabs; }
+        set
+        {
+            if (SetProperty(ref _searchAllTabs, value))
+                OnPropertyChanged(nameof(SearchSelectedTab));
+        }
+    }
+
+    // Inversul lui SearchAllTabs — cele doua functioneaza ca radio buttons
+    public bool SearchSelectedTab
+    {
+        get { return !_searchAllTabs; }
+        set { SearchAllTabs = !value; }
+    }
 
     public AppViewModel()
     {
@@ -56,6 +76,8 @@ public class AppViewModel : ObservableObject
         AboutCommand    = new RelayCommand(OpenAbout);
         OpenFindCommand    = new RelayCommand(OpenFind);
         OpenReplaceCommand = new RelayCommand(OpenReplace);
+        OpenReplaceAllCommand = new RelayCommand(OpenReplace);
+        ToggleSearchAllTabsCommand = new RelayCommand(() => SearchAllTabs = !SearchAllTabs);
 
         // Deschide un tab gol la pornirea aplicatiei
         FileOperations.NewDocument();
@@ -95,7 +117,7 @@ public class AppViewModel : ObservableObject
     {
         var main = Application.Current.MainWindow as MainWindow;
         if (main == null) return;
-        var win = new MyNotepad.Features.Search.FindWindow(() => main.GetActiveEditor());
+        var win = new MyNotepad.Features.Search.FindWindow(this, main);
         win.Owner = main;
         win.Show();
     }
@@ -105,7 +127,7 @@ public class AppViewModel : ObservableObject
     {
         var main = Application.Current.MainWindow as MainWindow;
         if (main == null) return;
-        var win = new MyNotepad.Features.Search.ReplaceWindow(() => main.GetActiveEditor());
+        var win = new MyNotepad.Features.Search.ReplaceWindow(this, main);
         win.Owner = main;
         win.Show();
     }

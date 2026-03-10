@@ -6,7 +6,6 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UseWPF>true</UseWPF>
-        <ApplicationIcon>Fonts\Logo.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
@@ -16,8 +15,6 @@
     <ItemGroup>
       <Resource Include="icons for notepad\*.png"/>
       <Resource Include="Fonts\*.ttf"/>
-      <Resource Include="Fonts\Logo.ico"/>
-      <Resource Include="Fonts\Logo.jpg"/>
       <Resource Include="Fonts\notepad-seeklogo.png"/>
     </ItemGroup>
 

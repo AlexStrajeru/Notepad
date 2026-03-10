@@ -3,18 +3,21 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using ICSharpCode.AvalonEdit;
 using MyNotepad.Core;
+using MyNotepad.Features.File;
 
 namespace MyNotepad.Features.Search;
 
 // Mosteneste AnimatedWindow — fade-in si dark title bar automat
 public partial class ReplaceWindow : AnimatedWindow
 {
-    private readonly Func<TextEditor?> _getEditor;
+    private readonly AppViewModel _app;
+    private readonly MainWindow _main;
 
-    public ReplaceWindow(Func<TextEditor?> getEditor)
+    public ReplaceWindow(AppViewModel app, MainWindow main)
     {
         InitializeComponent();
-        _getEditor = getEditor;
+        _app = app;
+        _main = main;
         ContentRendered += (_, _) =>
         {
             var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
@@ -30,40 +33,106 @@ public partial class ReplaceWindow : AnimatedWindow
 
     private void Replace_Click(object sender, RoutedEventArgs e)
     {
-        var editor = _getEditor();
-        if (editor == null || string.IsNullOrEmpty(TxtFind.Text)) return;
+        if (string.IsNullOrEmpty(TxtFind.Text)) return;
 
-        var term    = TxtFind.Text;
+        var term = TxtFind.Text;
         var replace = TxtReplace.Text;
-        var idx     = editor.Text.IndexOf(term, Comparison);
 
-        if (idx >= 0)
+        if (ChkAllTabs.IsChecked == true)
         {
-            editor.Document.Replace(idx, term.Length, replace);
-            editor.Select(idx, replace.Length);
+            // Inlocuieste prima aparitie gasita in orice tab (incepand cu cel activ)
+            var tabs = _app.OpenTabs.ToList();
+            if (tabs.Count == 0) return;
+
+            int startIndex = _app.ActiveTab != null ? tabs.IndexOf(_app.ActiveTab) : 0;
+            if (startIndex < 0) startIndex = 0;
+
+            for (int i = 0; i < tabs.Count; i++)
+            {
+                var tab = tabs[(startIndex + i) % tabs.Count];
+                int idx = tab.Text.IndexOf(term, Comparison);
+                if (idx >= 0)
+                {
+                    // Fa switch la tab-ul respectiv
+                    _app.ActiveTab = tab;
+                    Dispatcher.InvokeAsync(() =>
+                    {
+                        var ed = _main.GetActiveEditor();
+                        if (ed != null)
+                        {
+                            ed.Document.Replace(idx, term.Length, replace);
+                            ed.Select(idx, replace.Length);
+                        }
+                    }, System.Windows.Threading.DispatcherPriority.Loaded);
+                    return;
+                }
+            }
+
+            MessageBox.Show($"'{term}' not found in any tab.", "Replace", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         else
-            MessageBox.Show($"'{term}' not found.", "Replace", MessageBoxButton.OK, MessageBoxImage.Information);
+        {
+            var editor = _main.GetActiveEditor();
+            if (editor == null) return;
+
+            var idx = editor.Text.IndexOf(term, Comparison);
+            if (idx >= 0)
+            {
+                editor.Document.Replace(idx, term.Length, replace);
+                editor.Select(idx, replace.Length);
+            }
+            else
+                MessageBox.Show($"'{term}' not found.", "Replace", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
 
     private void ReplaceAll_Click(object sender, RoutedEventArgs e)
     {
-        var editor = _getEditor();
-        if (editor == null || string.IsNullOrEmpty(TxtFind.Text)) return;
+        if (string.IsNullOrEmpty(TxtFind.Text)) return;
 
-        var term    = TxtFind.Text;
+        var term = TxtFind.Text;
         var replace = TxtReplace.Text;
-        int count   = 0;
-        int idx     = 0;
+        int totalCount = 0;
 
-        while ((idx = editor.Text.IndexOf(term, idx, Comparison)) >= 0)
+        if (ChkAllTabs.IsChecked == true)
         {
-            editor.Document.Replace(idx, term.Length, replace);
-            idx += replace.Length;
-            count++;
-        }
+            // Inlocuieste in toate tab-urile deschise
+            foreach (var tab in _app.OpenTabs.ToList())
+            {
+                int count = 0;
+                var text = tab.Text;
+                int idx = 0;
+                while ((idx = text.IndexOf(term, idx, Comparison)) >= 0)
+                {
+                    text = text.Remove(idx, term.Length).Insert(idx, replace);
+                    idx += replace.Length;
+                    count++;
+                }
+                if (count > 0)
+                {
+                    tab.Text = text;
+                    totalCount += count;
+                }
+            }
 
-        MessageBox.Show($"Replaced {count} occurrence(s).", "Replace All",
-            MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show($"Replaced {totalCount} occurrence(s) in all tabs.", "Replace All",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        else
+        {
+            var editor = _main.GetActiveEditor();
+            if (editor == null) return;
+
+            int idx = 0;
+            while ((idx = editor.Text.IndexOf(term, idx, Comparison)) >= 0)
+            {
+                editor.Document.Replace(idx, term.Length, replace);
+                idx += replace.Length;
+                totalCount++;
+            }
+
+            MessageBox.Show($"Replaced {totalCount} occurrence(s).", "Replace All",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
 }
