@@ -9,23 +9,45 @@ namespace MyNotepad.Core;
 
 public class AppViewModel : ObservableObject
 {
-    // Lista de tab-uri deschise — UI-ul o afiseaza automat
+    // Contine lista documentelor deschise curent in aplicatie.
     public ObservableCollection<DocumentTab> OpenTabs { get; } = new ObservableCollection<DocumentTab>();
 
-    // Tab-ul selectat in momentul de fata
+    // Returneaza sau seteaza documentul activ in mod curent.
     private DocumentTab? _activeTab;
     public DocumentTab? ActiveTab
     {
         get { return _activeTab; }
-        set { SetProperty(ref _activeTab, value); }
+        set 
+        { 
+            if (_activeTab != null)
+                _activeTab.PropertyChanged -= OnActiveTabPropertyChanged;
+
+            if (SetProperty(ref _activeTab, value))
+            {
+                Explorer.UpdatePath(_activeTab?.FilePath);
+                if (_activeTab != null)
+                    _activeTab.PropertyChanged += OnActiveTabPropertyChanged;
+            }
+        }
+    }
+
+    private void OnActiveTabPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(DocumentTab.FilePath))
+        {
+            Explorer.UpdatePath(ActiveTab?.FilePath);
+        }
     }
 
     public int DocumentCounter { get; set; } = 1;
 
-    // Clasa care se ocupa cu operatiile pe fisiere (new, open, save, close)
+    // Gestioneaza operatiunile pe fisiere.
     public FileOperations FileOperations { get; }
 
-    // Datele afisate in bara de jos (linie, coloana, status)
+    // Modelul de date pentru interfata de afisare a directoarelor.
+    public Features.Explorer.ExplorerViewModel Explorer { get; } = new Features.Explorer.ExplorerViewModel();
+
+    // Contine informatiile afisate in bara de stare a aplicatiei.
     public StatusBarViewModel StatusBar { get; }
 
     // Comenzile legate de butoane si meniuri
@@ -41,6 +63,15 @@ public class AppViewModel : ObservableObject
     public ICommand OpenReplaceCommand { get; }
     public ICommand OpenReplaceAllCommand { get; }
     public ICommand ToggleSearchAllTabsCommand { get; }
+    public ICommand ShowFolderExplorerCommand { get; }
+    public ICommand HideFolderExplorerCommand { get; }
+
+    private bool _isFolderExplorerVisible = false;
+    public bool IsFolderExplorerVisible
+    {
+        get { return _isFolderExplorerVisible; }
+        set { SetProperty(ref _isFolderExplorerVisible, value); }
+    }
 
     private bool _searchAllTabs = false;
     public bool SearchAllTabs
@@ -53,7 +84,7 @@ public class AppViewModel : ObservableObject
         }
     }
 
-    // Inversul lui SearchAllTabs — cele doua functioneaza ca radio buttons
+    // Proprietatea inversa celei principale pentru sincronizarea elementelor de interfata.
     public bool SearchSelectedTab
     {
         get { return !_searchAllTabs; }
@@ -65,12 +96,12 @@ public class AppViewModel : ObservableObject
         FileOperations = new FileOperations(this);
         StatusBar = new StatusBarViewModel(this);
 
-        // Leaga fiecare comanda de metoda corespunzatoare
+        // Initializeaza comenzile din interfata aplicatiei.
         NewCommand      = new RelayCommand(NewDocument);
         OpenCommand     = new RelayCommand(OpenDocument);
-        SaveCommand     = new RelayCommand(SaveDocument, CanSave);       // CanSave = activ doar daca e un tab deschis
+        SaveCommand     = new RelayCommand(SaveDocument, CanSave);
         SaveAsCommand   = new RelayCommand(SaveDocumentAs, CanSave);
-        CloseCommand    = new RelayCommand<DocumentTab>(CloseDocument);  // primeste ca parametru tab-ul de inchis
+        CloseCommand    = new RelayCommand<DocumentTab>(CloseDocument);
         CloseAllCommand = new RelayCommand(CloseAllDocuments, CanCloseAll);
         ExitCommand     = new RelayCommand(ExitApplication);
         AboutCommand    = new RelayCommand(OpenAbout);
@@ -78,8 +109,10 @@ public class AppViewModel : ObservableObject
         OpenReplaceCommand = new RelayCommand(OpenReplace);
         OpenReplaceAllCommand = new RelayCommand(OpenReplace);
         ToggleSearchAllTabsCommand = new RelayCommand(() => SearchAllTabs = !SearchAllTabs);
+        ShowFolderExplorerCommand  = new RelayCommand(() => IsFolderExplorerVisible = true);
+        HideFolderExplorerCommand  = new RelayCommand(() => IsFolderExplorerVisible = false);
 
-        // Deschide un tab gol la pornirea aplicatiei
+        // Creeaza un prim document gol odata cu rularea aplicatiei.
         FileOperations.NewDocument();
     }
 
@@ -104,7 +137,7 @@ public class AppViewModel : ObservableObject
 
     private void CloseDocument(DocumentTab tab) => FileOperations.CloseDocument(tab);
 
-    // Deschide fereastra About (informatii despre aplicatie)
+    // Deschide fereastra cu informatii despre student.
     private void OpenAbout()
     {
         var aboutWindow = new AboutWindow();
@@ -112,7 +145,7 @@ public class AppViewModel : ObservableObject
         aboutWindow.ShowDialog();
     }
 
-    // Deschide fereastra de cautare text
+    // Afiseaza fereastra pentru cautarea textului.
     private void OpenFind()
     {
         var main = Application.Current.MainWindow as MainWindow;
@@ -122,7 +155,7 @@ public class AppViewModel : ObservableObject
         win.Show();
     }
 
-    // Deschide fereastra de inlocuire text
+    // Afiseaza fereastra pentru inlocuirea textului.
     private void OpenReplace()
     {
         var main = Application.Current.MainWindow as MainWindow;

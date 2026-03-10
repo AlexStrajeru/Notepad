@@ -45,7 +45,7 @@ public partial class FindWindow : AnimatedWindow
 
         if (ChkAllTabs.IsChecked == true)
         {
-            // Cauta in toate tab-urile, incepand cu cel activ
+            // Foloseste metoda ToList din libraria System.Linq pentru a crea o copie a listei.
             var tabs = _app.OpenTabs.ToList();
             if (tabs.Count == 0) return;
 
@@ -74,7 +74,7 @@ public partial class FindWindow : AnimatedWindow
                 if (idx >= 0)
                 {
                     _app.ActiveTab = tab;
-                    // Asteapta ca editorul sa se incarce, apoi selecteaza
+                    // Selecteaza textul folosind functii native din text editor si Dispatcher din libraria System.Windows.Threading.
                     Dispatcher.InvokeAsync(() =>
                     {
                         var ed = _main.GetActiveEditor();
@@ -88,6 +88,7 @@ public partial class FindWindow : AnimatedWindow
                 }
             }
 
+            // Afiseaza un mesaj informativ pe ecran prin componenta MessageBox din libraria System.Windows.
             MessageBox.Show($"'{term}' not found in any tab.", "Find", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         else
@@ -107,7 +108,10 @@ public partial class FindWindow : AnimatedWindow
                 editor.ScrollToLine(editor.Document.GetLineByOffset(idx).LineNumber);
             }
             else
+            {
+                // Utilizeaza clasa MessageBox din libraria System.Windows.
                 MessageBox.Show($"'{term}' not found.", "Find", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
         }
     }
 

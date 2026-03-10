@@ -5,6 +5,7 @@
         xmlns:file="clr-namespace:MyNotepad.Features.File"
         xmlns:edit="clr-namespace:MyNotepad.Features.Edit"
         xmlns:search="clr-namespace:MyNotepad.Features.Search"
+        xmlns:view="clr-namespace:MyNotepad.Features.View"
         xmlns:status="clr-namespace:MyNotepad.Features.StatusBar"
         xmlns:help="clr-namespace:MyNotepad.Features.Help"
         xmlns:avalon="http://icsharpcode.net/sharpdevelop/avalonedit"
@@ -16,12 +17,17 @@
         <core:AppViewModel/>
     </Window.DataContext>
 
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
+
     <DockPanel LastChildFill="True" Background="#1E1E1E">
 
         <Menu DockPanel.Dock="Top" Background="#3C3C3C" Padding="5">
             <file:FileMenuControl/>
             <edit:EditMenuControl/>
             <search:SearchMenuControl/>
+            <view:ViewMenuControl/>
             <help:HelpMenuControl/>
         </Menu>
 
@@ -95,6 +101,72 @@
         </StackPanel>
 
         <status:StatusBarControl DockPanel.Dock="Bottom" DataContext="{Binding StatusBar}"/>
+
+        <!-- Folder Explorer panel (stanga) cu animatie slide -->
+        <Border x:Name="FolderExplorerPanel" DockPanel.Dock="Left" Width="0" Background="#252526"
+                BorderBrush="#3C3C3C" BorderThickness="0,0,1,0" ClipToBounds="True">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsFolderExplorerVisible}" Value="True">
+                            <DataTrigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Width"
+                                                         To="250" Duration="0:0:0.3">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseOut"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.EnterActions>
+                            <DataTrigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Width"
+                                                         To="0" Duration="0:0:0.25">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseIn"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.ExitActions>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <DockPanel Width="250">
+                <TextBlock DockPanel.Dock="Top" Text="Folder Explorer" Foreground="#AAAAAA" FontSize="12" Margin="10,8"/>
+                <TreeView x:Name="FolderTreeView" Background="#252526" BorderThickness="0" Foreground="#D4D4D4"
+                          Padding="4" ItemsSource="{Binding Explorer.Items}" MouseDoubleClick="FolderTreeView_MouseDoubleClick">
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                            <StackPanel Orientation="Horizontal" Margin="0,2" ContextMenuOpening="StackPanel_ContextMenuOpening">
+                                <StackPanel.ContextMenu>
+                                    <ContextMenu Opened="FolderContextMenu_Opened">
+                                        <MenuItem Header="New file" Click="FolderContextMenu_NewFile"/>
+                                        <MenuItem Header="Copy path" Click="FolderContextMenu_CopyPath"/>
+                                        <MenuItem Header="Copy folder" Click="FolderContextMenu_CopyFolder"/>
+                                        <MenuItem Header="Paste folder" Click="FolderContextMenu_PasteFolder"/>
+                                    </ContextMenu>
+                                </StackPanel.ContextMenu>
+                                <TextBlock Text="{Binding Icon}" Foreground="#DCDCAA" Margin="0,0,6,0" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontSize="13"/>
+                            </StackPanel>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="TreeViewItem">
+                            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                            <Setter Property="Foreground" Value="#D4D4D4"/>
+                            <Setter Property="Padding" Value="4,2"/>
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                </TreeView>
+            </DockPanel>
+        </Border>
 
         <TabControl x:Name="MainTabControl" ItemsSource="{Binding OpenTabs}" SelectedItem="{Binding ActiveTab}">
             <TabControl.ItemsPanel>
