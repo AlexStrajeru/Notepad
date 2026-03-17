@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using MyNotepad.Core;
+using File = System.IO.File;
 
 namespace MyNotepad.Features.Explorer;
 
@@ -23,11 +24,11 @@ public class ExplorerItemViewModel : ObservableObject
     public ObservableCollection<ExplorerItemViewModel> Children { get; } = new ObservableCollection<ExplorerItemViewModel>();
 
     // Comenzi pentru context menu
-    public ICommand NewFileCommand { get; }
-    public ICommand CopyPathCommand { get; }
-    public ICommand CopyFolderCommand { get; }
-    public ICommand PasteFolderCommand { get; }
-    public ICommand OpenDocumentCommand { get; }
+    public ICommand? NewFileCommand { get; }
+    public ICommand? CopyPathCommand { get; }
+    public ICommand? CopyFolderCommand { get; }
+    public ICommand? PasteFolderCommand { get; }
+    public ICommand? OpenDocumentCommand { get; }
 
     // Memoreaza static folderul copiat
     private static string? _copiedFolderPath = null;
@@ -108,12 +109,12 @@ public class ExplorerItemViewModel : ObservableObject
         {
             string newFilePath = Path.Combine(FullPath, "NewFile.txt");
             int counter = 1;
-            while (File.Exists(newFilePath))
+            while (System.IO.File.Exists(newFilePath))
             {
                 newFilePath = Path.Combine(FullPath, $"NewFile ({counter}).txt");
                 counter++;
             }
-            File.WriteAllText(newFilePath, "");
+            System.IO.File.WriteAllText(newFilePath, "");
             LoadChildren();
             
             // Notifica aplicatia principala sa deschida fisierul creat (trimitem mesaj global)
@@ -175,7 +176,7 @@ public class ExplorerItemViewModel : ObservableObject
     {
         Directory.CreateDirectory(destDir);
         foreach (var file in Directory.GetFiles(sourceDir))
-            File.Copy(file, Path.Combine(destDir, Path.GetFileName(file)));
+            System.IO.File.Copy(file, Path.Combine(destDir, Path.GetFileName(file)));
         foreach (var directory in Directory.GetDirectories(sourceDir))
             CopyDirectory(directory, Path.Combine(destDir, Path.GetFileName(directory)));
     }
