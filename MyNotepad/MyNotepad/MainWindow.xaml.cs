@@ -1,5 +1,7 @@
+using System;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Media;
 using ICSharpCode.AvalonEdit;
@@ -15,6 +17,27 @@ public partial class MainWindow : AnimatedWindow
     public MainWindow()
     {
         InitializeComponent();
+
+        // Înregistrăm legăturile pentru comenzile din Toolbar
+        AddCommandBinding(ApplicationCommands.Undo, (e) => e.Undo(), (e) => e.CanUndo);
+        AddCommandBinding(ApplicationCommands.Redo, (e) => e.Redo(), (e) => e.CanRedo);
+        AddCommandBinding(ApplicationCommands.Cut, (e) => e.Cut(), (e) => true);
+        AddCommandBinding(ApplicationCommands.Copy, (e) => e.Copy(), (e) => true);
+        AddCommandBinding(ApplicationCommands.Paste, (e) => e.Paste(), (e) => true);
+    }
+
+    private void AddCommandBinding(ICommand command, Action<TextEditor> execute, Func<TextEditor, bool> canExecute)
+    {
+        CommandBindings.Add(new CommandBinding(command,
+            (s, e) => {
+                var editor = GetActiveEditor();
+                if (editor != null) execute(editor);
+            },
+            (s, e) => {
+                var editor = GetActiveEditor();
+                e.CanExecute = editor != null && canExecute(editor);
+            }
+        ));
     }
 
     private void Editor_Loaded(object sender, RoutedEventArgs e)

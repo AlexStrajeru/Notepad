@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using MyNotepad.Core;
@@ -9,24 +10,39 @@ public class ExplorerViewModel : ObservableObject
     // Seteaza lista elementelor radacina afisate in arbore.
     public ObservableCollection<ExplorerItemViewModel> Items { get; } = new ObservableCollection<ExplorerItemViewModel>();
 
+    public ExplorerViewModel()
+    {
+        // Incarcam toate discurile disponibile in calculator (C:\, D:\, G:\, etc.) la pornirea aplicatiei.
+        try
+        {
+            foreach (var drive in Directory.GetLogicalDrives())
+            {
+                Items.Add(new ExplorerItemViewModel(drive, true));
+            }
+        }
+        catch { }
+    }
+
     public void UpdatePath(string? filePath)
     {
         if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath)) return;
 
         try
         {
-            // Pornim de la radacina discului (ex: C:\)
-            string rootPath = Path.GetPathRoot(filePath) ?? filePath;
+            // Aflam discul pe care se afla fisierul (ex: C:\)
+            string rootPath = Path.GetPathRoot(filePath);
+            if (string.IsNullOrEmpty(rootPath)) return;
 
-            if (Items.Count == 0 || !Items[0].FullPath.Equals(rootPath, System.StringComparison.OrdinalIgnoreCase))
+            // Cautam discul corect in lista noastra fara sa mai stergem nimic.
+            foreach (var drive in Items)
             {
-                Items.Clear();
-                var driveRoot = new ExplorerItemViewModel(rootPath, true);
-                Items.Add(driveRoot);
+                if (drive.FullPath.Equals(rootPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    // Incepem expandarea de la acel disc spre fisier
+                    ExpandTo(drive, filePath);
+                    break;
+                }
             }
-
-            // Incepem expandarea de la radacina spre fisier
-            ExpandTo(Items[0], filePath);
         }
         catch { }
     }
@@ -40,14 +56,14 @@ public class ExplorerViewModel : ObservableObject
         foreach (var child in currentNode.Children)
         {
             // Am gasit exact fisierul? IL SELECTAM
-            if (child.FullPath.Equals(targetPath, System.StringComparison.OrdinalIgnoreCase))
+            if (child.FullPath.Equals(targetPath, StringComparison.OrdinalIgnoreCase))
             {
                 child.IsSelected = true;
                 return;
             }
 
             // Suntem pe drumul cel bun (un folder parinte)? CONTINUAM
-            if (child.IsDirectory && targetPath.StartsWith(child.FullPath, System.StringComparison.OrdinalIgnoreCase))
+            if (child.IsDirectory && targetPath.StartsWith(child.FullPath, StringComparison.OrdinalIgnoreCase))
             {
                 ExpandTo(child, targetPath);
                 break;

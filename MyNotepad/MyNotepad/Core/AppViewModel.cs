@@ -65,6 +65,7 @@ public class AppViewModel : ObservableObject
     public ICommand ToggleSearchAllTabsCommand { get; }
     public ICommand ShowFolderExplorerCommand { get; }
     public ICommand HideFolderExplorerCommand { get; }
+    public ICommand OpenFolderCommand { get; } // Comanda adaugata din nou
 
     private bool _isFolderExplorerVisible = false;
     public bool IsFolderExplorerVisible
@@ -111,9 +112,26 @@ public class AppViewModel : ObservableObject
         ToggleSearchAllTabsCommand = new RelayCommand(() => SearchAllTabs = !SearchAllTabs);
         ShowFolderExplorerCommand  = new RelayCommand(() => IsFolderExplorerVisible = true);
         HideFolderExplorerCommand  = new RelayCommand(() => IsFolderExplorerVisible = false);
+        OpenFolderCommand          = new RelayCommand(OpenFolderAsWorkspace); // Linkare comanda
 
         // Creeaza un prim document gol odata cu rularea aplicatiei.
         FileOperations.NewDocument();
+    }
+
+    private void OpenFolderAsWorkspace()
+    {
+        var dialog = new Microsoft.Win32.OpenFolderDialog();
+        dialog.Title = "Select Folder as Workspace";
+        if (dialog.ShowDialog() == true)
+        {
+            // Folosim UpdatePath pentru a deschide automat ierarhia pana la folderul ales.
+            // Punem un fisier fictiv 'temp' la final ca sa pacalim functia sa gaseasca folderul.
+            string folderPath = dialog.FolderName;
+            if (!folderPath.EndsWith("\\")) folderPath += "\\";
+            
+            Explorer.UpdatePath(folderPath + "temp.txt"); 
+            IsFolderExplorerVisible = true;
+        }
     }
 
     private void NewDocument()      => FileOperations.NewDocument();
