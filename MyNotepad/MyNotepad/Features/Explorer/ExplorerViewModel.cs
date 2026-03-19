@@ -9,30 +9,49 @@ public class ExplorerViewModel : ObservableObject
     // Seteaza lista elementelor radacina afisate in arbore.
     public ObservableCollection<ExplorerItemViewModel> Items { get; } = new ObservableCollection<ExplorerItemViewModel>();
 
-    // Reincarca structura panoului in functie de locatia fisierului curent.
     public void UpdatePath(string? filePath)
     {
-        Items.Clear();
-
-        // Lasa structura goala daca fisierul nu este inca salvat pe disc.
-        if (string.IsNullOrEmpty(filePath)) return;
+        if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath)) return;
 
         try
         {
-            // Extrage structura bazata pe fisier si verifica existenta acesteia utilizand clase native din libraria System.IO.
-            string? dir = Path.GetDirectoryName(filePath);
-            if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir)) return;
+            // Pornim de la radacina discului (ex: C:\)
+            string rootPath = Path.GetPathRoot(filePath) ?? filePath;
 
-            // Selecteaza folderul parinte al fisierului ca nod principal si il extinde automat.
-            var root = new ExplorerItemViewModel(dir, true);
-            root.IsExpanded = true; 
-            root.LoadChildren();
-            
-            Items.Add(root);
+            if (Items.Count == 0 || !Items[0].FullPath.Equals(rootPath, System.StringComparison.OrdinalIgnoreCase))
+            {
+                Items.Clear();
+                var driveRoot = new ExplorerItemViewModel(rootPath, true);
+                Items.Add(driveRoot);
+            }
+
+            // Incepem expandarea de la radacina spre fisier
+            ExpandTo(Items[0], filePath);
         }
-        catch
+        catch { }
+    }
+
+    private void ExpandTo(ExplorerItemViewModel currentNode, string targetPath)
+    {
+        // 1. Deschidem folderul curent
+        currentNode.IsExpanded = true; 
+
+        // 2. Itearam prin copii (foldere sau fisiere)
+        foreach (var child in currentNode.Children)
         {
-            // Abandoneaza operatia in caz ca apar erori de permisiuni.
+            // Am gasit exact fisierul? IL SELECTAM
+            if (child.FullPath.Equals(targetPath, System.StringComparison.OrdinalIgnoreCase))
+            {
+                child.IsSelected = true;
+                return;
+            }
+
+            // Suntem pe drumul cel bun (un folder parinte)? CONTINUAM
+            if (child.IsDirectory && targetPath.StartsWith(child.FullPath, System.StringComparison.OrdinalIgnoreCase))
+            {
+                ExpandTo(child, targetPath);
+                break;
+            }
         }
     }
 }

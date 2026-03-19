@@ -13,6 +13,8 @@ public class ExplorerItemViewModel : ObservableObject
 {
     private bool _isExpanded;
     private bool _isLoaded;
+    
+    private bool _isSelected;
 
     public string Name { get; }
     public string FullPath { get; }
@@ -76,6 +78,12 @@ public class ExplorerItemViewModel : ObservableObject
                 }
             }
         }
+    }
+
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set => SetProperty(ref _isSelected, value);
     }
 
     public void LoadChildren()
