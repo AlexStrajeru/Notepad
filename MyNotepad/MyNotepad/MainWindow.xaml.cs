@@ -11,14 +11,12 @@ using MyNotepad.Features.File;
 
 namespace MyNotepad;
 
-// Mosteneste AnimatedWindow — fade-in si dark title bar automat
 public partial class MainWindow : AnimatedWindow
 {
     public MainWindow()
     {
         InitializeComponent();
 
-        // Înregistrăm legăturile pentru comenzile din Toolbar
         AddCommandBinding(ApplicationCommands.Undo, (e) => e.Undo(), (e) => e.CanUndo);
         AddCommandBinding(ApplicationCommands.Redo, (e) => e.Redo(), (e) => e.CanRedo);
         AddCommandBinding(ApplicationCommands.Cut, (e) => e.Cut(), (e) => true);
@@ -44,7 +42,6 @@ public partial class MainWindow : AnimatedWindow
     {
         var editor = (TextEditor)sender;
 
-        // Centrare numere linii
         var lineNumberMargin = editor.TextArea.LeftMargins
             .OfType<LineNumberMargin>()
             .FirstOrDefault();
@@ -54,8 +51,6 @@ public partial class MainWindow : AnimatedWindow
             lineNumberMargin.Margin = new Thickness(6, 0, 6, 0);
         }
 
-        // Leaga editorul la DocumentTab-ul corect
-        // Se apeleaza si cand se schimba tab-ul activ (DataContext se schimba)
         BindEditorToDoc(editor);
         editor.DataContextChanged += (_, _) => BindEditorToDoc(editor);
     }
@@ -66,11 +61,9 @@ public partial class MainWindow : AnimatedWindow
 
         editor.LineNumbersForeground = new SolidColorBrush(Color.FromRgb(100, 100, 100));
 
-        // Incarca textul din DocumentTab in editor
         if (editor.Text != doc.Text)
             editor.Text = doc.Text;
 
-        // Dezaboneaza orice handler vechi pentru a evita leak-uri
         editor.TextChanged -= OnEditorTextChanged;
         editor.TextChanged += OnEditorTextChanged;
     }
@@ -83,6 +76,19 @@ public partial class MainWindow : AnimatedWindow
 
     public TextEditor? GetActiveEditor() => FindVisualChild<TextEditor>(MainTabControl);
 
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+        if (DataContext is AppViewModel vm)
+        {
+            vm.FileOperations.CloseAllDocuments();
+            if (vm.OpenTabs.Count > 0)
+            {
+                e.Cancel = true;
+            }
+        }
+        base.OnClosing(e);
+    }
+
     private static T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
     {
         for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
@@ -94,10 +100,5 @@ public partial class MainWindow : AnimatedWindow
         }
         return null;
     }
-
-    // Evenimente Folder Explorer
-
-
-
 
 }

@@ -13,29 +13,29 @@ public class ExplorerItemViewModel : ObservableObject
 {
     private bool _isExpanded;
     private bool _isLoaded;
-    
+
     private bool _isSelected;
 
     public string Name { get; }
     public string FullPath { get; }
     public bool IsDirectory { get; }
-    
-    // Stabileste iconita afisata in functie de tipul elementului.
+
+
     public string Icon => IsDirectory ? "📁" : "📄";
 
     public ObservableCollection<ExplorerItemViewModel> Children { get; } = new ObservableCollection<ExplorerItemViewModel>();
 
-    // Comenzi pentru context menu
+
     public ICommand? NewFileCommand { get; }
     public ICommand? CopyPathCommand { get; }
     public ICommand? CopyFolderCommand { get; }
     public ICommand? PasteFolderCommand { get; }
     public ICommand? OpenDocumentCommand { get; }
 
-    // Memoreaza static folderul copiat
+
     private static string? _copiedFolderPath = null;
 
-    // Creeaza un element temporar folosit inainte de incarcarea datelor reale.
+
     private ExplorerItemViewModel(string dummyName)
     {
         Name = dummyName;
@@ -49,11 +49,11 @@ public class ExplorerItemViewModel : ObservableObject
         IsDirectory = isDirectory;
         Name = Path.GetFileName(fullPath);
         if (string.IsNullOrEmpty(Name))
-            Name = fullPath; // Foloseste calea completa daca elementul este o partitie din sistem sau o cale principala.
+            Name = fullPath;
 
         if (IsDirectory)
         {
-            // Adauga un element temporar pentru a forta afisarea sagetii de expandare in interfata.
+
             Children.Add(new ExplorerItemViewModel("Loading..."));
         }
 
@@ -64,7 +64,7 @@ public class ExplorerItemViewModel : ObservableObject
         OpenDocumentCommand = new RelayCommand(OpenDocument, () => !IsDirectory);
     }
 
-    // Incarca asincron continutul directorului doar in momentul in care utilizatorul il extinde manual.
+
     public bool IsExpanded
     {
         get => _isExpanded;
@@ -93,7 +93,7 @@ public class ExplorerItemViewModel : ObservableObject
 
         try
         {
-            // Extrage fisierele si folderele pe baza caii utilizand clasa Directory din libraria System.IO.
+
             var dirs = Directory.GetDirectories(FullPath).OrderBy(d => d).ToList();
             var files = Directory.GetFiles(FullPath).OrderBy(f => f).ToList();
 
@@ -107,7 +107,7 @@ public class ExplorerItemViewModel : ObservableObject
         }
         catch (Exception)
         {
-            // Ignora directoarele care necesita drepturi de administrator.
+
         }
     }
 
@@ -124,9 +124,9 @@ public class ExplorerItemViewModel : ObservableObject
             }
             System.IO.File.WriteAllText(newFilePath, "");
             LoadChildren();
-            
-            // Notifica aplicatia principala sa deschida fisierul creat (trimitem mesaj global)
-            Application.Current.Dispatcher.Invoke(() => 
+
+
+            Application.Current.Dispatcher.Invoke(() =>
             {
                 if (Application.Current.MainWindow?.DataContext is AppViewModel app)
                     app.FileOperations.OpenSpecificDocument(newFilePath);
@@ -156,7 +156,7 @@ public class ExplorerItemViewModel : ObservableObject
         {
             string folderName = Path.GetFileName(_copiedFolderPath);
             string targetPath = Path.Combine(FullPath, folderName);
-            
+
             if (targetPath.StartsWith(_copiedFolderPath, StringComparison.OrdinalIgnoreCase))
             {
                 MessageBox.Show("Cannot copy a folder into itself.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -193,7 +193,7 @@ public class ExplorerItemViewModel : ObservableObject
     {
         if (IsDirectory) return;
 
-        Application.Current.Dispatcher.Invoke(() => 
+        Application.Current.Dispatcher.Invoke(() =>
         {
             if (Application.Current.MainWindow?.DataContext is AppViewModel app)
                 app.FileOperations.OpenSpecificDocument(FullPath);

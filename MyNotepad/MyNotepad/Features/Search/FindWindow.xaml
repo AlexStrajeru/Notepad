@@ -7,12 +7,10 @@
         ResizeMode="NoResize"
         Background="#1E1E1E"
         ShowInTaskbar="False">
-
     <Border x:Name="ContentPanel" Margin="16">
         <Border.RenderTransform>
             <TranslateTransform x:Name="ContentTranslate" Y="-15"/>
         </Border.RenderTransform>
-
         <StackPanel>
             <TextBlock Text="Search for:" Foreground="#AAAAAA" FontSize="11" Margin="0,0,0,5"/>
             <TextBox x:Name="TxtFind"
@@ -20,7 +18,6 @@
                      BorderBrush="#454545" BorderThickness="1"
                      Padding="8,5" FontSize="13" CaretBrush="White"
                      KeyDown="TxtFind_KeyDown"/>
-
             <StackPanel Orientation="Horizontal" Margin="0,12,0,0" HorizontalAlignment="Right">
                 <CheckBox x:Name="ChkAllTabs" Content="All tabs"
                           Foreground="#D4D4D4" FontSize="12"
@@ -36,7 +33,3 @@
         </StackPanel>
     </Border>
 </core:AnimatedWindow>
-
-
-
-

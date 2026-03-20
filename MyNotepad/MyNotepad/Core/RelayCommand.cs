@@ -2,9 +2,9 @@ using System.Windows.Input;
 
 namespace MyNotepad.Core;
 
-// Leaga un buton sau meniu din UI de o metoda din cod.
-// execute  = metoda care se ruleaza cand apesi butonul
-// canExecute = metoda care decide daca butonul e activ sau gri (optional)
+
+
+
 public class RelayCommand : ICommand
 {
     private readonly Action _execute;
@@ -16,28 +16,28 @@ public class RelayCommand : ICommand
         _canExecute = canExecute;
     }
 
-    // WPF verifica automat daca butonul trebuie activat sau dezactivat
+
     public event EventHandler? CanExecuteChanged
     {
         add => CommandManager.RequerySuggested += value;
         remove => CommandManager.RequerySuggested -= value;
     }
 
-    // Returneaza true daca butonul poate fi apasat
+
     public bool CanExecute(object? parameter)
     {
-        if (_canExecute == null) return true; // fara restrictie = mereu activ
+        if (_canExecute == null) return true;
         return _canExecute();
     }
 
-    // Ruleaza actiunea legata de buton
+
     public void Execute(object? parameter)
     {
         _execute();
     }
 }
 
-// Versiunea cu parametru — folosita de butonul X de pe tab (primeste tab-ul de inchis)
+
 public class RelayCommand<T> : ICommand
 {
     private readonly Action<T> _execute;

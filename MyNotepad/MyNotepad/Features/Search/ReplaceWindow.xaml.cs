@@ -7,7 +7,7 @@ using MyNotepad.Features.File;
 
 namespace MyNotepad.Features.Search;
 
-// Mosteneste AnimatedWindow — fade-in si dark title bar automat
+
 public partial class ReplaceWindow : AnimatedWindow
 {
     private readonly AppViewModel _app;
@@ -40,7 +40,7 @@ public partial class ReplaceWindow : AnimatedWindow
 
         if (ChkAllTabs.IsChecked == true)
         {
-            // Inlocuieste prima aparitie gasita in orice tab (incepand cu cel activ)
+
             var tabs = _app.OpenTabs.ToList();
             if (tabs.Count == 0) return;
 
@@ -53,7 +53,7 @@ public partial class ReplaceWindow : AnimatedWindow
                 int idx = tab.Text.IndexOf(term, Comparison);
                 if (idx >= 0)
                 {
-                    // Fa switch la tab-ul respectiv
+
                     _app.ActiveTab = tab;
                     Dispatcher.InvokeAsync(() =>
                     {
@@ -96,7 +96,7 @@ public partial class ReplaceWindow : AnimatedWindow
 
         if (ChkAllTabs.IsChecked == true)
         {
-            // Inlocuieste in toate tab-urile deschise
+
             foreach (var tab in _app.OpenTabs.ToList())
             {
                 int count = 0;

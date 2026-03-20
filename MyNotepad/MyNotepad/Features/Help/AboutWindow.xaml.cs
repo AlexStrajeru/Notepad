@@ -7,7 +7,7 @@ using MyNotepad.Core;
 
 namespace MyNotepad.Features.Help;
 
-// Mosteneste AnimatedWindow — primeste automat fade-in si dark title bar
+
 public partial class AboutWindow : AnimatedWindow
 {
     public AboutWindow()
@@ -17,7 +17,7 @@ public partial class AboutWindow : AnimatedWindow
 
     private void OK_Click(object sender, RoutedEventArgs e)
     {
-        // Fade-out inainte de inchidere
+
         var ease = new CubicEase { EasingMode = EasingMode.EaseIn };
         var fadeOut = new DoubleAnimation(1, 0, new Duration(TimeSpan.FromSeconds(0.15)))
             { EasingFunction = ease };

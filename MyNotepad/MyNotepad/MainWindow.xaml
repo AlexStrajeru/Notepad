@@ -12,17 +12,13 @@
         Title="MyNotepad" Height="600" Width="1000"
         Icon="Fonts/notepad-seeklogo.png"
         SnapsToDevicePixels="True" UseLayoutRounding="True">
-
     <Window.DataContext>
         <core:AppViewModel/>
     </Window.DataContext>
-
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </Window.Resources>
-
     <DockPanel LastChildFill="True" Background="#1E1E1E">
-
         <Menu DockPanel.Dock="Top" Background="#3C3C3C" Padding="5">
             <file:FileMenuControl/>
             <edit:EditMenuControl/>
@@ -30,7 +26,6 @@
             <view:ViewMenuControl/>
             <help:HelpMenuControl/>
         </Menu>
-
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="#2D2D2D" RenderOptions.BitmapScalingMode="HighQuality">
             <Button Command="{Binding NewCommand}" Style="{StaticResource ToolbarButtonStyle}" ToolTip="New file">
                 <Rectangle Width="18" Height="18">
@@ -99,10 +94,7 @@
                 </Rectangle>
             </Button>
         </StackPanel>
-
         <status:StatusBarControl DockPanel.Dock="Bottom" DataContext="{Binding StatusBar}"/>
-
-        <!-- Folder Explorer panel (stanga) cu animatie slide -->
         <Border x:Name="FolderExplorerPanel" DockPanel.Dock="Left" Width="0" Background="#252526"
                 BorderBrush="#3C3C3C" BorderThickness="0,0,1,0" ClipToBounds="True">
             <Border.Style>
@@ -169,21 +161,18 @@
                             <Style.Resources>
                                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#007ACC" />
                                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#007ACC" />
-                            </Style.Resources> 
+                            </Style.Resources>
                         </Style>
-                        
                     </TreeView.ItemContainerStyle>
                 </TreeView>
             </DockPanel>
         </Border>
-
         <TabControl x:Name="MainTabControl" ItemsSource="{Binding OpenTabs}" SelectedItem="{Binding ActiveTab}">
             <TabControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal"/>
                 </ItemsPanelTemplate>
             </TabControl.ItemsPanel>
-
             <TabControl.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -195,7 +184,6 @@
                     </StackPanel>
                 </DataTemplate>
             </TabControl.ItemTemplate>
-
             <TabControl.ContentTemplate>
                 <DataTemplate>
                     <avalon:TextEditor x:Name="Editor"
@@ -207,12 +195,9 @@
                              Background="#1E1E1E"
                              Foreground="#D4D4D4"
                              BorderThickness="0"
-                             
                              Loaded="Editor_Loaded"/>
                 </DataTemplate>
             </TabControl.ContentTemplate>
         </TabControl>
-
     </DockPanel>
 </core:AnimatedWindow>
-

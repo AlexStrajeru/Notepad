@@ -8,7 +8,7 @@ using MyNotepad.Features.File;
 
 namespace MyNotepad.Features.Search;
 
-// Mosteneste AnimatedWindow — fade-in si dark title bar automat
+
 public partial class FindWindow : AnimatedWindow
 {
     private readonly AppViewModel _app;
@@ -19,7 +19,7 @@ public partial class FindWindow : AnimatedWindow
         InitializeComponent();
         _app = app;
         _main = main;
-        // Slide-down suplimentar la deschidere
+
         ContentRendered += (_, _) =>
         {
             var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
@@ -45,14 +45,14 @@ public partial class FindWindow : AnimatedWindow
 
         if (ChkAllTabs.IsChecked == true)
         {
-            // Foloseste metoda ToList din libraria System.Linq pentru a crea o copie a listei.
+
             var tabs = _app.OpenTabs.ToList();
             if (tabs.Count == 0) return;
 
             int startIndex = _app.ActiveTab != null ? tabs.IndexOf(_app.ActiveTab) : 0;
             if (startIndex < 0) startIndex = 0;
 
-            // Prima data cauta in tab-ul curent de la pozitia curenta
+
             var editor = _main.GetActiveEditor();
             if (editor != null && _app.ActiveTab != null)
             {
@@ -66,7 +66,7 @@ public partial class FindWindow : AnimatedWindow
                 }
             }
 
-            // Daca nu a gasit, cauta in celelalte tab-uri
+
             for (int i = 1; i < tabs.Count; i++)
             {
                 var tab = tabs[(startIndex + i) % tabs.Count];
@@ -74,7 +74,7 @@ public partial class FindWindow : AnimatedWindow
                 if (idx >= 0)
                 {
                     _app.ActiveTab = tab;
-                    // Selecteaza textul folosind functii native din text editor si Dispatcher din libraria System.Windows.Threading.
+
                     Dispatcher.InvokeAsync(() =>
                     {
                         var ed = _main.GetActiveEditor();
@@ -88,12 +88,12 @@ public partial class FindWindow : AnimatedWindow
                 }
             }
 
-            // Afiseaza un mesaj informativ pe ecran prin componenta MessageBox din libraria System.Windows.
+
             MessageBox.Show($"'{term}' not found in any tab.", "Find", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         else
         {
-            // Cauta doar in tab-ul curent (comportamentul original)
+
             var editor = _main.GetActiveEditor();
             if (editor == null) return;
 
@@ -109,7 +109,7 @@ public partial class FindWindow : AnimatedWindow
             }
             else
             {
-                // Utilizeaza clasa MessageBox din libraria System.Windows.
+
                 MessageBox.Show($"'{term}' not found.", "Find", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
@@ -128,7 +128,7 @@ public partial class FindWindow : AnimatedWindow
             int startIndex = _app.ActiveTab != null ? tabs.IndexOf(_app.ActiveTab) : 0;
             if (startIndex < 0) startIndex = 0;
 
-            // Prima data cauta in tab-ul curent inapoi
+
             var editor = _main.GetActiveEditor();
             if (editor != null && _app.ActiveTab != null)
             {
@@ -145,7 +145,7 @@ public partial class FindWindow : AnimatedWindow
                 }
             }
 
-            // Cauta in celelalte tab-uri (in ordine inversa)
+
             for (int i = 1; i < tabs.Count; i++)
             {
                 var tab = tabs[(startIndex - i + tabs.Count) % tabs.Count];

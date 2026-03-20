@@ -6,4 +6,3 @@
     <MenuItem Header="Find..."       Command="{Binding OpenFindCommand}"       Style="{StaticResource SubMenuItemStyle}"/>
     <MenuItem Header="Replace..."    Command="{Binding OpenReplaceCommand}"    Style="{StaticResource SubMenuItemStyle}"/>
 </MenuItem>
-
